@@ -1365,23 +1365,6 @@
             
             // Ejecutar detección de transporte inicial
             detectarTransporte();
-            
-            // Verificar si PAQUETE PRIVADO está seleccionado por defecto y activar tren turístico
-            setTimeout(() => {
-                const paquetePrivadoSelected = document.querySelector('[data-mode="paquete"]')?.classList.contains('selected');
-                if (paquetePrivadoSelected) {
-                    console.log('PAQUETE PRIVADO detectado como seleccionado por defecto - Activando tren turístico');
-                    seleccionarTransporte('turistico');
-                }
-            }, 100);
-            
-            // Sincronizar cálculo del tren con cambios en número de personas
-            const numeroPersonasInput = document.getElementById('numeroPersonas');
-            if (numeroPersonasInput) {
-                numeroPersonasInput.addEventListener('input', () => {
-                    calcularTotalTren();
-                });
-            }
         });
         
         // ==========================================
@@ -1732,10 +1715,6 @@
 
             if (modo === 'paquete') {
                 document.getElementById('precioPaqueteConfig').classList.add('show');
-                
-                // Activar automáticamente configuración de tren turístico para paquete privado
-                seleccionarTransporte('turistico');
-                
                 // Recalcular precio al mostrar
                 calcularPrecioTotal();
             } else if (modo === 'individual') {
@@ -1893,30 +1872,6 @@
                     precio_por_persona_tren: formData.get('precio_por_persona_tren') ? parseFloat(formData.get('precio_por_persona_tren')) : null,
                     // Calcular total automáticamente
                     precio_total_tren: calcularPrecioTotalTren(),
-                    
-                    // Información diferenciada del tren para PDF
-                    tren_pdf_aplica: !!formData.get('tipo_transporte'),
-                    tren_pdf_tipo: formData.get('tipo_transporte') || 'ninguno',
-                    tren_pdf_texto: (function() {
-                        const tipo = formData.get('tipo_transporte');
-                        if (!tipo) return 'No aplica';
-                        
-                        if (tipo === 'local') {
-                            return 'Aplica tren local';
-                        }
-                        
-                        if (tipo === 'turistico') {
-                            const horarioIda = formData.get('horario_ida_tren') || 'No especificado';
-                            const horarioRetorno = formData.get('horario_retorno_tren') || 'No especificado';
-                            const precioPorPersona = formData.get('precio_por_persona_tren') || 'No especificado';
-                            const totalCalculado = calcularPrecioTotalTren();
-                            const numeroPersonas = formData.get('personas_tren') || 'No especificado';
-                            
-                            return `Tren Turístico\n• Horario Ida: ${horarioIda}\n• Horario Retorno: ${horarioRetorno}\n• Precio USD: ${precioPorPersona} × ${numeroPersonas} = USD ${totalCalculado.toFixed(2)}`;
-                        }
-                        
-                        return 'Tipo de tren no especificado';
-                    })(),
                     
                     // Alojamiento
                     tipo_habitacion: formData.get('tipo_habitacion'),
@@ -2195,38 +2150,13 @@
             }
             
             const config = {
-                tipo: tipoTransporte.value,
-                // Información diferenciada del tren para PDF
-                tren_pdf_aplica: true,
-                tren_pdf_tipo: tipoTransporte.value.toLowerCase(),
-                tren_pdf_texto: (function() {
-                    const tipo = tipoTransporte.value.toLowerCase();
-                    
-                    if (tipo === 'local') {
-                        return 'Aplica tren local';
-                    }
-                    
-                    if (tipo === 'turistico') {
-                        const horarioIda = document.getElementById('horario_ida_tren')?.value || 'No especificado';
-                        const horarioRetorno = document.getElementById('horario_retorno_tren')?.value || 'No especificado';
-                        const precioPorPersona = document.getElementById('precio_por_persona_tren')?.value || 'No especificado';
-                        const personasTren = document.getElementById('personasTren')?.value || 'No especificado';
-                        const totalCalculado = calcularPrecioTotalTren();
-                        
-                        return `Tren Turístico\n• Horario Ida: ${horarioIda}\n• Horario Retorno: ${horarioRetorno}\n• Precio USD: ${precioPorPersona} × ${personasTren} = USD ${totalCalculado.toFixed(2)}`;
-                    }
-                    
-                    return 'Tipo de tren no especificado';
-                })()
+                tipo: tipoTransporte.value
             };
             
             // Si es tren turístico, obtener configuración adicional
-            if (tipoTransporte.value === 'TURISTICO' || tipoTransporte.value === 'turistico') {
+            if (tipoTransporte.value === 'TURISTICO') {
                 config.personas_tren = document.getElementById('personas_tren')?.value || '';
-                config.horario_ida_tren = document.getElementById('horario_ida_tren')?.value || '';
-                config.horario_retorno_tren = document.getElementById('horario_retorno_tren')?.value || '';
-                config.precio_usd = document.getElementById('precio_por_persona_tren')?.value || '';
-                config.precio_total_tren = calcularPrecioTotalTren();
+                config.precio_usd = document.getElementById('precio_usd')?.value || '';
             }
             
             return config;
