@@ -1049,25 +1049,53 @@
                             
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label class="form-label" for="personasTren">Personas en tren *</label>
-                                    <input type="text" id="personasTren" name="personas_tren" class="form-input" 
-                                           placeholder="Ej: 2 adultos, 1 niño">
+                                    <label class="form-label" for="horarioIdaTren">🕐 HORARIO DE IDA *</label>
+                                    <input type="text" id="horarioIdaTren" name="horario_ida_tren" class="form-input" 
+                                           placeholder="Ej: 08:30 - Cusco a Aguas Calientes" oninput="calcularTotalTren()">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label" for="horaTren">Hora del tren *</label>
-                                    <input type="time" id="horaTren" name="hora_tren" class="form-input">
+                                    <label class="form-label" for="horarioRetornoTren">🕐 HORARIO DE RETORNO *</label>
+                                    <input type="text" id="horarioRetornoTren" name="horario_retorno_tren" class="form-input" 
+                                           placeholder="Ej: 14:00 - Aguas Calientes a Cusco" oninput="calcularTotalTren()">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="personasTren">👥 PERSONAS EN TREN *</label>
+                                    <input type="text" id="personasTren" name="personas_tren" class="form-input" 
+                                           placeholder="Ej: 2 adultos, 1 niño" oninput="calcularTotalTren()">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="fechaTren">📅 FECHA DEL VIAJE EN TREN *</label>
+                                    <input type="date" id="fechaTren" name="fecha_tren" class="form-input">
                                 </div>
                             </div>
                             
                             <div class="form-group">
-                                <label class="form-label" for="fechaTren">Fecha del viaje en tren *</label>
-                                <input type="date" id="fechaTren" name="fecha_tren" class="form-input">
+                                <label class="form-label" for="precioPorPersonaTren">💰 PRECIO POR PERSONA (USD) *</label>
+                                <input type="text" id="precioPorPersonaTren" name="precio_por_persona_tren" class="form-input" 
+                                       placeholder="Ingresa el precio por persona en USD" oninput="calcularTotalTren()">
+                                <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px 16px; margin-top: 8px; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text-secondary);">
+                                    <span style="font-size: 1.1rem;">💡</span>
+                                    <span>El total se calculará automáticamente según el número de personas</span>
+                                </div>
                             </div>
                             
-                            <div class="form-group">
-                                <label class="form-label" for="precioTotalTren">Precio total en dólares (USD) *</label>
-                                <input type="text" id="precioTotalTren" name="precio_total_tren" class="form-input" 
-                                       placeholder="Ej: $500.00 USD">
+                            <!-- Recuadro destacado del total -->
+                            <div style="background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%); border: 2px solid var(--gold); border-radius: 16px; padding: 24px; margin-top: 24px; position: relative;">
+                                <div style="display: flex; align-items: center; gap: 8px; color: var(--gold); font-weight: 700; text-transform: uppercase; font-size: 1rem; margin-bottom: 8px; letter-spacing: 1px;">
+                                    <span>💲</span>
+                                    <span>TOTAL DEL TREN TURÍSTICO:</span>
+                                </div>
+                                
+                                <div id="totalTrenCalculado" style="font-size: 2.5rem; font-weight: 800; color: var(--text-primary); text-align: right; line-height: 1; margin-bottom: 8px;">
+                                    <span style="font-size: 1.2rem; font-weight: 400; color: var(--text-muted); padding: 8px 0;">Ingresa el precio por persona y la cantidad de personas</span>
+                                </div>
+                                
+                                <div id="calculoDetalleTren" style="text-align: right; color: var(--text-secondary); font-size: 0.9rem; font-style: italic; margin-top: 4px;">
+                                    <!-- Se mostrará el detalle del cálculo aquí -->
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1325,6 +1353,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Inicializando Tour Personalizado...');
             
+            // Inicializar cálculo del tren turístico
+            calcularTotalTren();
+            
             // Configurar formulario
             const form = document.getElementById('tourPersonalizadoForm');
             if (form) {
@@ -1564,11 +1595,66 @@
                 console.log('Tren local seleccionado - Incluido automáticamente');
                 // Limpiar campos del tren turístico
                 document.getElementById('personasTren').value = '';
-                document.getElementById('horaTren').value = '';
+                document.getElementById('horarioIdaTren').value = '';
+                document.getElementById('horarioRetornoTren').value = '';
                 document.getElementById('fechaTren').value = '';
-                document.getElementById('precioTren').value = '';
-                document.getElementById('precioTotalTren').value = '';
+                document.getElementById('precioPorPersonaTren').value = '';
+                calcularTotalTren(); // Recalcular después de limpiar
             }
+        }
+        
+        // ==========================================
+        // FUNCIONES DEL TREN TURÍSTICO
+        // ==========================================
+        
+        // Funciones del Tren Turístico
+        function calcularTotalTren() {
+            const precioPorPersonaInput = document.getElementById('precioPorPersonaTren');
+            const personasTrenInput = document.getElementById('personasTren');
+            const totalTrenElement = document.getElementById('totalTrenCalculado');
+            const calculoDetalleElement = document.getElementById('calculoDetalleTren');
+            
+            const precioPorPersona = parseFloat(precioPorPersonaInput?.value) || 0;
+            
+            // Extraer número de personas del texto (buscar números)
+            const personasTexto = personasTrenInput?.value || '';
+            const numeroPersonas = extraerNumeroPersonas(personasTexto);
+            
+            const total = precioPorPersona * numeroPersonas;
+            
+            if (precioPorPersona > 0 && numeroPersonas > 0) {
+                // Mostrar el total calculado
+                totalTrenElement.innerHTML = `<span>USD ${total.toFixed(2)}</span>`;
+                
+                // Mostrar el detalle del cálculo
+                calculoDetalleElement.textContent = `usd. ${precioPorPersona.toFixed(2)} × ${numeroPersonas} personas = USD ${total.toFixed(2)}`;
+            } else {
+                // Mostrar mensaje placeholder
+                totalTrenElement.innerHTML = '<span style="font-size: 1.2rem; font-weight: 400; color: var(--text-muted); padding: 8px 0;">Ingresa el precio por persona y la cantidad de personas</span>';
+                calculoDetalleElement.textContent = '';
+            }
+        }
+        
+        // Función auxiliar para extraer número de personas del texto
+        function extraerNumeroPersonas(texto) {
+            if (!texto) return 0;
+            // Buscar números en el texto
+            const numeros = texto.match(/\d+/);
+            return numeros ? parseInt(numeros[0]) : 0;
+        }
+        
+        // Función para calcular total del tren turístico (para envío de datos)
+        function calcularPrecioTotalTren() {
+            const precioPorPersonaInput = document.getElementById('precioPorPersonaTren');
+            const personasTrenInput = document.getElementById('personasTren');
+            
+            const precioPorPersona = parseFloat(precioPorPersonaInput?.value) || 0;
+            
+            // Extraer número de personas del texto
+            const personasTexto = personasTrenInput?.value || '';
+            const numeroPersonas = extraerNumeroPersonas(personasTexto);
+            
+            return precioPorPersona * numeroPersonas;
         }
         
         // ==========================================
@@ -1780,10 +1866,12 @@
                     // Transporte
                     tipo_transporte: formData.get('tipo_transporte'),
                     personas_tren: formData.get('personas_tren'),
-                    hora_tren: formData.get('hora_tren'),
+                    horario_ida_tren: formData.get('horario_ida_tren'),
+                    horario_retorno_tren: formData.get('horario_retorno_tren'),
                     fecha_tren: formData.get('fecha_tren'),
-                    precio_tren: formData.get('precio_tren') ? parseFloat(formData.get('precio_tren')) : null,
-                    precio_total_tren: formData.get('precio_total_tren'),
+                    precio_por_persona_tren: formData.get('precio_por_persona_tren') ? parseFloat(formData.get('precio_por_persona_tren')) : null,
+                    // Calcular total automáticamente
+                    precio_total_tren: calcularPrecioTotalTren(),
                     
                     // Alojamiento
                     tipo_habitacion: formData.get('tipo_habitacion'),
@@ -2145,7 +2233,8 @@
                 
                 // Datos del tren
                 tipo_tren: tipoTransporteSeleccionado === 'local' ? 'Expedition (Local)' : 'Vistadome (Turístico)',
-                tren_horario: document.getElementById('horaTren') ? document.getElementById('horaTren').value || 'N/A' : 'N/A',
+                horario_ida_tren: document.getElementById('horarioIdaTren') ? document.getElementById('horarioIdaTren').value || 'N/A' : 'N/A',
+                horario_retorno_tren: document.getElementById('horarioRetornoTren') ? document.getElementById('horarioRetornoTren').value || 'N/A' : 'N/A',
                 personas_tren: document.getElementById('personasTren') ? document.getElementById('personasTren').value || 'N/A' : 'N/A',
                 
                 // Otros datos
@@ -2379,8 +2468,11 @@
             if (datosResumen.tipo_tren !== 'N/A') {
                 mensaje += `🚂 *Tren:*\n`;
                 mensaje += `- Servicio: ${datosResumen.tipo_tren}\n`;
-                if (datosResumen.tren_horario !== 'N/A') {
-                    mensaje += `- Horario: ${datosResumen.tren_horario}\n`;
+                if (datosResumen.horario_ida_tren !== 'N/A') {
+                    mensaje += `- Ida: ${datosResumen.horario_ida_tren}\n`;
+                }
+                if (datosResumen.horario_retorno_tren !== 'N/A') {
+                    mensaje += `- Retorno: ${datosResumen.horario_retorno_tren}\n`;
                 }
                 if (datosResumen.personas_tren !== 'N/A') {
                     mensaje += `- ${datosResumen.personas_tren}\n`;
