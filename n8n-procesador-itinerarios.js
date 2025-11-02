@@ -428,8 +428,41 @@ Personas: ${personasTren} × USD ${precioPorPersonaTren.toFixed(0)} = USD ${prec
     };
   }
 
-  // NOTA: El código completo incluye el mapeo de 26 actividades y toda la lógica
-  // Para ver el código completo, consultar el archivo original
+  // ================= MAPEO DE ACTIVIDADES CON INFORMACIÓN COMPLETA =================
+  const ACTIVIDADES_INFO = {
+    'LLEGADA': {
+      descripcion: '<h4>Itinerario:</h4><ul><li>Recepción en aeropuerto</li><li>Traslado a hotel</li><li>Bienvenida con mate de coca</li><li>Briefing informativo</li></ul>',
+      imagen: BASE_URL + 'llegada-cusco.jpg'
+    },
+    'LLEGADA+CITY': {
+      descripcion: '<h4>Itinerario:</h4><ul><li>Recepción en aeropuerto</li><li>Traslado a hotel</li><li>City Tour por Cusco</li><li>Qoricancha y Catedral</li><li>Sacsayhuamán y ruinas cercanas</li></ul>',
+      imagen: BASE_URL + 'llegada-city.jpg'
+    },
+    'CITY': {
+      descripcion: '<h4>Itinerario:</h4><ul><li>Qoricancha (Templo del Sol)</li><li>Catedral del Cusco</li><li>Sacsayhuamán</li><li>Qenqo</li><li>Puka Pukara</li><li>Tambomachay</li></ul>',
+      imagen: BASE_URL + 'city-tour.jpg'
+    },
+    'LAGUNA': {
+      descripcion: '<h4>Itinerario:</h4><ul><li>Salida temprano hacia Mollepata</li><li>Desayuno en ruta</li><li>Caminata hacia Laguna Humantay</li><li>Tiempo libre en la laguna</li><li>Retorno a Cusco</li></ul>',
+      imagen: BASE_URL + 'laguna-humantay.jpg'
+    },
+    'MONTAÑA': {
+      descripcion: '<h4>Itinerario:</h4><ul><li>Salida 3:00 AM</li><li>Desayuno en Cusipata</li><li>Caminata a Vinicunca (Montaña 7 Colores)</li><li>Tiempo en la cima</li><li>Retorno y almuerzo</li></ul>',
+      imagen: BASE_URL + 'montana-colores.jpg'
+    },
+    'VALLE+MAPI': {
+      descripcion: '<h4>Itinerario:</h4><ul><li>Día 1: Valle Sagrado (Pisac, Ollantaytambo)</li><li>Tren a Aguas Calientes</li><li>Noche en Aguas Calientes</li><li>Día 2: Machu Picchu</li><li>Retorno a Cusco</li></ul>',
+      imagen: BASE_URL + 'valle-mapi.jpg'
+    },
+    'MAPI': {
+      descripcion: '<h4>Itinerario:</h4><ul><li>Traslado a estación de tren</li><li>Viaje en tren a Aguas Calientes</li><li>Bus a Machu Picchu</li><li>Tour guiado 2.5 horas</li><li>Retorno a Cusco</li></ul>',
+      imagen: BASE_URL + 'machu-picchu.jpg'
+    },
+    'SALIDA': {
+      descripcion: '<h4>Itinerario:</h4><ul><li>Desayuno en hotel</li><li>Check-out</li><li>Traslado al aeropuerto</li><li>Fin de servicios</li></ul>',
+      imagen: BASE_URL + 'salida-cusco.jpg'
+    }
+  };
 
   // ================= PROCESAMIENTO PRINCIPAL =================
   let itinerario = Array.isArray(body.itinerario) ? body.itinerario.slice() : [];
@@ -448,13 +481,148 @@ Personas: ${personasTren} × USD ${precioPorPersonaTren.toFixed(0)} = USD ${prec
     itinerario = [{ dia: 1, fecha: formatearFechaSlash(hoy), actividad: 'LLEGADA' }];
   }
 
-  // NOTA: Aquí continuaría el procesamiento completo de actividades,
-  // cálculos de precios, y generación del objeto de salida
+  // Procesar actividades con información completa
+  const actividadesProcesadas = itinerario.map((item, index) => {
+    const actividadNormalizada = normalizarNombreActividad(item.actividad);
+    const info = ACTIVIDADES_INFO[actividadNormalizada] || ACTIVIDADES_INFO['LLEGADA'];
 
-  console.log("✅ Procesador n8n cargado correctamente");
+    return {
+      titulo_dia: `Día ${item.dia}: ${item.actividad}`,
+      fecha_dia: formatearFechaCompleta(parsearFecha(item.fecha)),
+      descripcion: info.descripcion,
+      imagen: info.imagen
+    };
+  });
+
+  // Calcular fechas y duración
+  const fechaInicio = parsearFecha(body.fecha_tour || body.fecha_inicio);
+  const totalDias = itinerario.length;
+  const fechaFin = new Date(fechaInicio);
+  fechaFin.setDate(fechaFin.getDate() + totalDias - 1);
+
+  // Calcular precios
+  const precioTotal = parseFloat(body.precio_total) || 0;
+  const numeroPersonas = parseInt(body.numero_personas) || 1;
+  const adelantoReserva = parseFloat(body.adelanto_pagado) || 0;
+  const tarifaPorNacional = precioTotal / numeroPersonas;
+  const saldoPendiente = precioTotal - adelantoReserva;
+
+  // Información del tren
+  const infoTren = procesarInformacionTren(body, body.actividades_seleccionadas || []);
+
+  // ================= OBJETO DE SALIDA FINAL =================
+  const resultado = {
+    // DATOS DEL CLIENTE
+    NOMBRE_CLIENTE: body.nombre_cliente || 'Cliente',
+    TELEFONO_CLIENTE: body.telefono || 'No especificado',
+    NUMERO_PERSONAS: numeroPersonas,
+    TIPO_HABITACION: body.tipo_habitacion || 'Matrimonial',
+    observaciones: body.observaciones || '',
+
+    // DATOS DEL ASESOR (NUEVOS)
+    NOMBRE_ASESOR: body.nombre_asesor || 'No especificado',
+    EMAIL_ASESOR: body.email_asesor || 'info@orestravelperu.com',
+
+    // INFORMACIÓN DEL PROGRAMA
+    NOMBRE_PROGRAMA: body.programa || (body.actividades_seleccionadas ? body.actividades_seleccionadas.join(' + ') : 'Tour Personalizado'),
+    DURACION_PROGRAMA: `${totalDias} día${totalDias !== 1 ? 's' : ''} / ${totalDias - 1} noche${totalDias - 1 !== 1 ? 's' : ''}`,
+    FECHA_INICIO: formatearFechaSlash(fechaInicio),
+    FECHA_FIN: formatearFechaSlash(fechaFin),
+
+    // INFORMACIÓN FINANCIERA
+    PRECIO_POR_PERSONA: tarifaPorNacional.toFixed(2),
+    TARIFA_POR_NACIONAL: tarifaPorNacional.toFixed(2),
+    PRECIO_TOTAL: precioTotal.toFixed(2),
+    ADELANTO_RESERVA: adelantoReserva.toFixed(2),
+    SALDO_PENDIENTE: saldoPendiente.toFixed(2),
+
+    // INFORMACIÓN DEL TREN
+    TIPO_TREN: infoTren.tipoTren,
+    PRECIO_TREN: infoTren.precioTren,
+    PRECIO_TOTAL_TREN: body.precio_total_tren || '0',
+    HORA_IDA_TREN: body.hora_ida_tren || body.horario_ida_tren || 'Por confirmar',
+    HORA_RETORNO_TREN: body.hora_retorno_tren || body.horario_retorno_tren || 'Por confirmar',
+
+    // ESTRUCTURA DE ACTIVIDADES
+    json_estructura: {
+      actividades: {
+        tarjetas: actividadesProcesadas
+      }
+    },
+
+    // IMÁGENES ESTÁTICAS
+    IMAGEN_LOGO: BASE_URL + 'logo-ores.png',
+    IMAGEN_CIRCUITO_1: BASE_URL + 'circuito-1.jpg',
+    IMAGEN_CIRCUITO_2: BASE_URL + 'circuito-2.jpg',
+    IMAGEN_CIRCUITO_3: BASE_URL + 'circuito-3.jpg',
+    IMAGEN_HOTELES: BASE_URL + 'hoteles-cusco.jpg',
+    IMAGEN_CUENTA_BANCARIA: BASE_URL + 'cuenta-banco.png',
+    IMAGEN_TOUR_ADICIONAL_1: BASE_URL + 'tour-adicional-1.jpg',
+    IMAGEN_TOUR_ADICIONAL_2: BASE_URL + 'tour-adicional-2.jpg',
+
+    // TEXTOS FIJOS HTML
+    PROGRAMA_INCLUYE: `<h3>El programa incluye</h3>
+<ul>
+  <li>Traslado aeropuerto - hotel - aeropuerto</li>
+  <li>Alojamiento en hoteles según categoría seleccionada</li>
+  <li>Tours según itinerario con guía profesional</li>
+  <li>Entradas a los sitios turísticos</li>
+  <li>Transporte turístico privado</li>
+  <li>Asistencia permanente</li>
+</ul>`,
+
+    PROGRAMA_NO_INCLUYE: `<h3>El programa NO incluye</h3>
+<ul>
+  <li>Vuelos nacionales o internacionales</li>
+  <li>Alimentación (salvo especificado)</li>
+  <li>Gastos personales y propinas</li>
+  <li>Seguros de viaje</li>
+  <li>Servicios no especificados</li>
+</ul>`,
+
+    SUGERENCIAS_GENERALES: `<h3>Sugerencias generales</h3>
+<ul>
+  <li>Llevar bloqueador solar y repelente de insectos</li>
+  <li>Ropa abrigadora para la noche</li>
+  <li>Documentos de identidad originales</li>
+  <li>Medicamentos personales</li>
+  <li>Efectivo para gastos adicionales</li>
+</ul>`,
+
+    SUGERENCIAS_CAMINATAS: `<h3>Sugerencias para caminatas</h3>
+<ul>
+  <li>Zapatos de trekking cómodos</li>
+  <li>Bastones de caminata</li>
+  <li>Ropa deportiva en capas</li>
+  <li>Gorro y guantes</li>
+  <li>Hidratación constante</li>
+</ul>`,
+
+    INFO_TREN_LOCAL: `<h3>Información sobre tren turístico</h3>
+<h4>Tren Local (Expedition)</h4>
+<p>Servicio económico con asientos cómodos y ventanas panorámicas. Incluye snack ligero.</p>
+<h4>Tren Turístico (Vistadome)</h4>
+<p>Servicio premium con ventanas panorámicas en el techo, snack gourmet incluido, y espectáculo cultural a bordo.</p>`,
+
+    INFO_HOTELES: `<h3>En hoteles</h3>
+<h4>Categoría 2 estrellas</h4>
+<p>Hoteles económicos con servicios básicos, habitaciones limpias y cómodas.</p>
+<h4>Categoría 3 estrellas</h4>
+<p>Hoteles confortables con habitaciones equipadas y servicios adicionales.</p>
+<h4>Categoría 4 y 5 estrellas</h4>
+<p>Hoteles de lujo con todas las comodidades y servicios de primera clase.</p>`
+  };
+
+  console.log("✅ Procesamiento completado exitosamente");
   console.log("📋 Versión: V7.3-TREN-DIFERENCIADO-FINAL-CORREGIDO");
+  console.log("📊 Total de días:", totalDias);
+  console.log("💰 Precio total:", precioTotal);
+  console.log("👤 Cliente:", resultado.NOMBRE_CLIENTE);
+  console.log("👨‍💼 Asesor:", resultado.NOMBRE_ASESOR);
+
+  return [{ json: resultado }];
 
 } catch (error) {
   console.error("❌ ERROR EN PROCESAMIENTO:", error);
-  return [{ json: { error: error.message, stack: error.stack } }];
+  return [{ json: { error: error.message, stack: error.stack, timestamp: new Date().toISOString() } }];
 }
