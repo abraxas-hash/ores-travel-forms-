@@ -1240,13 +1240,41 @@
                     
                     <div class="form-group">
                         <label class="form-label" for="observaciones">Observaciones adicionales (opcional)</label>
-                        <textarea id="observaciones" name="observaciones" class="form-input" rows="3" 
+                        <textarea id="observaciones" name="observaciones" class="form-input" rows="3"
                                   placeholder="Comentarios o requerimientos especiales"></textarea>
                     </div>
-                    
+                </div>
+
+                <!-- PASO 7: DATOS DEL ASESOR -->
+                <div class="step-section">
+                    <div class="step-title">
+                        <span>👨‍💼</span>
+                        <span>PASO 7: DATOS DEL ASESOR</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="nombreAsesor">Nombre del Asesor *</label>
+                        <input type="text" id="nombreAsesor" name="nombre_asesor" class="form-input"
+                               placeholder="Nombre completo del asesor" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="emailAsesor">Email del Asesor *</label>
+                        <input type="email" id="emailAsesor" name="email_asesor" class="form-input"
+                               placeholder="email@orestravelperu.com" required>
+                    </div>
+                </div>
+
+                <!-- PASO 8: ADELANTO DE PAGO -->
+                <div class="step-section">
+                    <div class="step-title">
+                        <span>💰</span>
+                        <span>PASO 8: ADELANTO DE PAGO</span>
+                    </div>
+
                     <div class="form-group">
                         <label class="form-label" for="adelantoPagado">Adelanto pagado en soles (S/.) - Opcional</label>
-                        <input type="number" id="adelantoPagado" name="adelanto_pagado" class="form-input" 
+                        <input type="number" id="adelantoPagado" name="adelanto_pagado" class="form-input"
                                placeholder="Escribe 0 si no dio adelanto" step="0.01" min="0" value="0">
                     </div>
                 </div>
@@ -1886,7 +1914,11 @@
                     
                     // Adicionales
                     observaciones: formData.get('observaciones') || '',
-                    
+
+                    // Datos del Asesor
+                    nombre_asesor: formData.get('nombre_asesor'),
+                    email_asesor: formData.get('email_asesor'),
+
                     // Metadatos para Google Sheets
                     fecha_creacion: new Date().toISOString(),
                     timestamp: new Date().toISOString(),
@@ -2116,11 +2148,15 @@
                 
                 // Observaciones
                 observaciones: formData.get('observaciones') || '',
-                
+
+                // Datos del Asesor
+                nombre_asesor: formData.get('nombre_asesor'),
+                email_asesor: formData.get('email_asesor'),
+
                 // Metadatos
                 timestamp: new Date().toISOString()
             };
-            
+
             console.log('📦 Payload preparado:', payload);
             return payload;
         }
@@ -2240,7 +2276,11 @@
                 // Otros datos
                 observaciones: document.getElementById('observaciones') ? document.getElementById('observaciones').value || 'Ninguna' : 'Ninguna',
                 adelanto_pagado: document.getElementById('adelantoPagado') ? document.getElementById('adelantoPagado').value || '0' : '0',
-                
+
+                // Datos del Asesor
+                nombre_asesor: document.getElementById('nombreAsesor') ? document.getElementById('nombreAsesor').value || 'N/A' : 'N/A',
+                email_asesor: document.getElementById('emailAsesor') ? document.getElementById('emailAsesor').value || 'N/A' : 'N/A',
+
                 // Datos del PDF
                 pdf: resultado.pdf
             };
