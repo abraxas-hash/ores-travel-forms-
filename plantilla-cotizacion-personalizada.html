@@ -304,16 +304,30 @@
       <tr><td class="label">CLIENTE</td><td>: {{ $json.NOMBRE_CLIENTE }}</td></tr>
       <tr><td class="label">TIPO DE HABITACIÓN</td><td>: {{ $json.TIPO_HABITACION }}</td></tr>
       <tr><td class="label">NÚMERO DE PERSONAS</td><td>: {{ $json.NUMERO_PERSONAS }}</td></tr>
-      <tr><td class="label">OBSERVACIONES</td><td>: {{ $json.observaciones }}</td></tr>
     </table>
 
     <h2>INFORMACIÓN FINANCIERA</h2>
     <table class="info-table">
-      <tr><td class="label">TARIFA POR NACIONAL</td><td>: S/. {{ $json.PRECIO_POR_PERSONA }}</td></tr>
-      <tr><td class="label">PRECIO DEL TREN</td><td>: {{ $json.PRECIO_TREN }} ({{ $json.TIPO_TREN }})</td></tr>
+      <tr><td class="label">TARIFA POR PERSONA</td><td>: S/. {{ $json.PRECIO_POR_PERSONA }}</td></tr>
       <tr><td class="label">TOTAL A PAGAR</td><td>: S/. {{ $json.PRECIO_TOTAL }}</td></tr>
       <tr><td class="label">ADELANTO</td><td>: S/. {{ $json.ADELANTO_RESERVA }}</td></tr>
       <tr><td class="label">SALDO</td><td>: S/. {{ $json.SALDO_PENDIENTE }}</td></tr>
+    </table>
+
+    <h2>INFORMACIÓN DEL TREN</h2>
+    <h3 style="font-size: 11pt; margin: 5px 0;">DETALLES DEL TREN</h3>
+    <table class="info-table">
+      <tr><td class="label">N° PERSONAS</td><td>: {{ $json.NUMERO_PERSONAS }}</td></tr>
+      <tr><td class="label">PRECIO</td><td>: {{ $json.PRECIO_TREN }}</td></tr>
+      <tr><td class="label">HORA IDA</td><td>: {{ $json.HORA_IDA_TREN }}</td></tr>
+      <tr><td class="label">HORA RETORNO</td><td>: {{ $json.HORA_RETORNO_TREN }}</td></tr>
+      <tr><td class="label">TOTAL</td><td>: {{ $json.PRECIO_TOTAL_TREN }}</td></tr>
+      <tr><td class="label">TIPO</td><td>: {{ $json.TIPO_TREN }}</td></tr>
+    </table>
+
+    <h2>OBSERVACIONES</h2>
+    <table class="info-table">
+      <tr><td colspan="2">: {{ $json.observaciones }}</td></tr>
     </table>
 
     <h2>INFORMACIÓN DE FECHAS</h2>
