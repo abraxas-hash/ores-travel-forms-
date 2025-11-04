@@ -1160,15 +1160,28 @@
                         <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin-bottom: 16px; color: var(--text-secondary); font-size: 0.9rem;">
                             ℹ️ Complete los siguientes datos para el tren turístico Vistadome
                         </div>
-                        
+
                         <div class="form-group">
-                            <label class="form-label" for="tren_horario">Hora del tren:</label>
-                            <input type="time" id="tren_horario" name="tren_horario" class="form-input">
+                            <label class="form-label" for="hora_ida_tren">🕐 Hora de Salida (Ida):</label>
+                            <input type="time" id="hora_ida_tren" name="hora_ida_tren" class="form-input"
+                                   placeholder="Ej: 06:10">
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">
+                                💡 Horario de salida del tren hacia Aguas Calientes
+                            </div>
                         </div>
-                        
+
+                        <div class="form-group">
+                            <label class="form-label" for="hora_retorno_tren">🕐 Hora de Retorno:</label>
+                            <input type="time" id="hora_retorno_tren" name="hora_retorno_tren" class="form-input"
+                                   placeholder="Ej: 16:30">
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">
+                                💡 Horario de retorno desde Aguas Calientes
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label class="form-label" for="personas_tren">PERSONAS EN TREN:</label>
-                            <input type="text" id="personas_tren" name="personas_tren" class="form-input" 
+                            <input type="text" id="personas_tren" name="personas_tren" class="form-input"
                                    placeholder="Ej: 2 adultos, 1 niño">
                         </div>
                         
@@ -1633,7 +1646,8 @@
                 tipo_habitacion: formData.get('tipo_habitacion'),
                 categoria_hotel: formData.get('categoria_hotel'),
                 tipo_tren: tipoTrenSeleccionado,
-                tren_horario: formData.get('tren_horario') || null,
+                hora_ida_tren: formData.get('hora_ida_tren') || null,
+                hora_retorno_tren: formData.get('hora_retorno_tren') || null,
                 personas_tren: formData.get('personas_tren') || null,
                 adelanto_pagado: parseFloat(formData.get('adelanto_pagado')) || 0,
                 observaciones: formData.get('observaciones') || '',
@@ -1876,7 +1890,8 @@
                 
                 // Datos del tren
                 tipo_tren: tipoTrenSeleccionado === 'expedition' ? 'Expedition (Local)' : 'Vistadome (Turístico)',
-                tren_horario: document.getElementById('tren_horario') ? document.getElementById('tren_horario').value || 'N/A' : 'N/A',
+                hora_ida_tren: document.getElementById('hora_ida_tren') ? document.getElementById('hora_ida_tren').value || 'N/A' : 'N/A',
+                hora_retorno_tren: document.getElementById('hora_retorno_tren') ? document.getElementById('hora_retorno_tren').value || 'N/A' : 'N/A',
                 personas_tren: document.getElementById('personas_tren') ? document.getElementById('personas_tren').value || 'N/A' : 'N/A',
                 precio_tren: document.getElementById('precio_tren') ? document.getElementById('precio_tren').value || 'N/A' : 'N/A',
                 
