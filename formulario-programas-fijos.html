@@ -379,7 +379,58 @@
             align-items: center;
             gap: 8px;
         }
-        
+
+        /* ==========================================
+           OPCIONES DE TRANSPORTE
+        ========================================== */
+        .transport-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .transport-option {
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .transport-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        .transport-option.selected {
+            background: rgba(194, 65, 12, 0.2);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(194, 65, 12, 0.3);
+        }
+
+        .transport-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .transport-config {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(194, 65, 12, 0.1);
+            border: 1px solid rgba(194, 65, 12, 0.3);
+            border-radius: 14px;
+            animation: fadeInDown 0.4s ease-out;
+        }
+
+        .transport-config.show {
+            display: block;
+        }
+
         /* ==========================================
            BOTÓN DE ENVÍO
         ========================================== */
@@ -1121,81 +1172,79 @@
                 </div>
                 
                 
-                <!-- PASO 5: CONFIGURACIÓN DE TREN -->
+                <!-- PASO 5: TRANSPORTE -->
                 <div class="step-section">
                     <div class="step-title">
                         <span>🚂</span>
-                        <span>PASO 5: Tren a Machu Picchu</span>
+                        <span>PASO 5: TRANSPORTE (Detección automática)</span>
                     </div>
-                    
-                    <div class="tren-options">
-                        <div class="tren-option" data-tren="expedition" onclick="seleccionarTren('expedition')">
-                            <span class="tren-icon">🚂</span>
-                            <div class="tren-title">Expedition</div>
-                            <div class="tren-price">✅ Incluido en el programa</div>
-                        </div>
-                        
-                        <div class="tren-option" data-tren="vistadome" onclick="seleccionarTren('vistadome')">
-                            <span class="tren-icon">🚅</span>
-                            <div class="tren-title">Vistadome</div>
-                            <div class="tren-price">💰 Costo adicional</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Campo hidden para el tipo de tren seleccionado -->
-                    <input type="hidden" id="tipo_tren" name="tipo_tren" required>
-                    
-                    <!-- Mensaje informativo para Expedition -->
-                    <div id="expeditionInfo" class="info-message" style="display: none;">
-                        <p>✅ <strong>Tren Local (Expedition) seleccionado:</strong> Este tren se incluye automáticamente en tu programa sin costo adicional. <strong>En el PDF aparecerá como: "incluye (local)"</strong>. No se requiere ingresar precio.</p>
-                    </div>
-                    
-                    <!-- Configuración adicional para Vistadome -->
-                    <div id="trenTuristicoConfig" class="tren-config">
-                        <div class="config-title" style="font-weight: 700; color: var(--gold); margin-bottom: 16px;">
-                            <span>⚙️</span>
-                            <span>CONFIGURACIÓN TREN TURÍSTICO VISTADOME</span>
-                        </div>
-                        
-                        <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin-bottom: 16px; color: var(--text-secondary); font-size: 0.9rem;">
-                            ℹ️ Complete los siguientes datos para el tren turístico Vistadome
-                        </div>
 
+                    <div id="transporteDetectado" class="warning-message" style="display: none;">
+                        ⚠️ DETECTADO: Tu tour incluye actividades hacia Machu Picchu
+                    </div>
+
+                    <div id="transporteNoDetectado" class="info-message" style="display: none;">
+                        📍 Tu tour actual no incluye visitas a Machu Picchu. Si agregas actividades como MAPI, VALLE+MAPI, etc., aparecerán las opciones de transporte.
+                        <br><br>
+                        <button type="button" onclick="mostrarTransporteManual()" class="btn-link">
+                            🚂 ¿Quieres configurar transporte manualmente?
+                        </button>
+                    </div>
+
+                    <div id="transporteSection" style="display: none;">
                         <div class="form-group">
-                            <label class="form-label" for="hora_ida_tren">🕐 Hora de Salida (Ida):</label>
-                            <input type="time" id="hora_ida_tren" name="hora_ida_tren" class="form-input"
-                                   placeholder="Ej: 06:10">
-                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">
-                                💡 Horario de salida del tren hacia Aguas Calientes
+                            <label class="form-label">¿Qué tipo de tren prefieres? *</label>
+                            <div class="transport-options">
+                                <div class="transport-option" data-transport="local" onclick="seleccionarTransporte('local')">
+                                    <span class="transport-icon">🚂</span>
+                                    <div>TREN LOCAL</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                                        (Incluye automáticamente)
+                                    </div>
+                                </div>
+                                <div class="transport-option" data-transport="turistico" onclick="seleccionarTransporte('turistico')">
+                                    <span class="transport-icon">🚂</span>
+                                    <div>TREN TURÍSTICO</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                                        (Requiere configuración)
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label" for="hora_retorno_tren">🕐 Hora de Retorno:</label>
-                            <input type="time" id="hora_retorno_tren" name="hora_retorno_tren" class="form-input"
-                                   placeholder="Ej: 16:30">
-                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">
-                                💡 Horario de retorno desde Aguas Calientes
-                            </div>
-                        </div>
+                        <input type="hidden" id="tipoTransporte" name="tipo_transporte">
 
-                        <div class="form-group">
-                            <label class="form-label" for="personas_tren">PERSONAS EN TREN:</label>
-                            <input type="text" id="personas_tren" name="personas_tren" class="form-input"
-                                   placeholder="Ej: 2 adultos, 1 niño">
-                        </div>
-                        
-                        <div class="form-group" id="grupo_precio_tren">
-                            <label class="form-label" for="precio_tren">💰 Precio del Tren Turístico (USD):</label>
-                            <input type="text" id="precio_tren" name="precio_tren" class="form-input" 
-                                   placeholder="Ej: 150.00 (cualquier formato)">
-                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">
-                                💡 Precio en dólares del tren turístico Vistadome por persona.
+                        <div id="transporteConfig" class="transport-config">
+                            <div style="font-weight: 600; margin-bottom: 16px; color: var(--primary);">
+                                ⚙️ CONFIGURACIÓN TREN TURÍSTICO
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label" for="personasTren">Personas en tren *</label>
+                                    <input type="text" id="personasTren" name="personas_tren" class="form-input"
+                                           placeholder="Ej: 2 adultos, 1 niño">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="horaTren">Hora del tren *</label>
+                                    <input type="time" id="horaTren" name="hora_tren" class="form-input">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="fechaTren">Fecha del viaje en tren *</label>
+                                <input type="date" id="fechaTren" name="fecha_tren" class="form-input">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="precioTotalTren">Precio total en dólares (USD) *</label>
+                                <input type="text" id="precioTotalTren" name="precio_total_tren" class="form-input"
+                                       placeholder="Ej: $500.00 USD">
                             </div>
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- PASO 6: OBSERVACIONES -->
                 <div class="step-section">
                     <div class="step-title">
@@ -1363,22 +1412,25 @@
          */
         function seleccionarPrograma(programCode, element) {
             console.log(`Seleccionando programa: ${programCode}`);
-            
+
             // Limpiar selección anterior
             limpiarSeleccionProgramas();
-            
+
             // Aplicar nueva selección
             aplicarSeleccionPrograma(element, programCode);
-            
+
             // Actualizar variables globales
             selectedProgram = programCode;
-            
+
             // Mostrar resumen de selección
             mostrarResumenSeleccion(programCode);
-            
+
             // Actualizar campo hidden del formulario
             actualizarCampoPrograma(programCode);
-            
+
+            // Detectar y mostrar opciones de transporte
+            detectarTransporte();
+
             // Scroll suave al siguiente paso
             scrollAlSiguientePaso();
             
@@ -1456,110 +1508,76 @@
         }
         
         // ==========================================
-        // FUNCIONES DE SELECCIÓN DE TREN
+        // PASO 5: TRANSPORTE
         // ==========================================
-        
-        /**
-         * Maneja la selección del tipo de tren
-         * @param {string} tipo - Tipo de tren seleccionado ('expedition' o 'vistadome')
-         */
-        function seleccionarTren(tipo) {
-            console.log(`Seleccionando tren: ${tipo}`);
-            
-            // Limpiar selección anterior
-            limpiarSeleccionTren();
-            
-            // Aplicar nueva selección
-            aplicarSeleccionTren(tipo);
-            
-            // Actualizar variables globales
-            tipoTrenSeleccionado = tipo;
-            
-            // Actualizar campo hidden
-            actualizarCampoTren(tipo);
-            
-            // Mostrar/ocultar configuración según el tipo
-            manejarConfiguracionTren(tipo);
-            
-            console.log(`Tren ${tipo} seleccionado correctamente`);
+
+        function detectarTransporte() {
+            console.log('Ejecutando detectarTransporte()');
+            console.log('Programa seleccionado:', selectedProgram);
+
+            // Para programas fijos, siempre mostrar las opciones de transporte
+            const detectado = document.getElementById('transporteDetectado');
+            const noDetectado = document.getElementById('transporteNoDetectado');
+            const section = document.getElementById('transporteSection');
+
+            // Siempre mostrar opciones de transporte para programas fijos
+            if (detectado) detectado.style.display = 'block';
+            if (noDetectado) noDetectado.style.display = 'none';
+            if (section) section.style.display = 'block';
+
+            console.log('Mostrando opciones de transporte');
         }
-        
-        /**
-         * Limpia todas las selecciones de tren anteriores
-         */
-        function limpiarSeleccionTren() {
-            document.querySelectorAll('.tren-option').forEach(opt => {
-                opt.classList.remove('active');
-            });
+
+        function mostrarTransporteManual() {
+            const detectado = document.getElementById('transporteDetectado');
+            const noDetectado = document.getElementById('transporteNoDetectado');
+            const section = document.getElementById('transporteSection');
+
+            // Forzar mostrar sección de transporte
+            if (detectado) detectado.style.display = 'none';
+            if (noDetectado) noDetectado.style.display = 'none';
+            if (section) section.style.display = 'block';
+
+            // Mostrar mensaje de configuración manual
+            const manualMessage = document.createElement('div');
+            manualMessage.className = 'warning-message';
+            manualMessage.innerHTML = '⚙️ CONFIGURACIÓN MANUAL: Puedes seleccionar el tipo de transporte según tus necesidades.';
+
+            const stepSection = section.parentElement;
+            stepSection.insertBefore(manualMessage, section);
+
+            console.log('Mostrando transporte manual');
         }
-        
-        /**
-         * Aplica la selección visual al tipo de tren elegido
-         * @param {string} tipo - Tipo de tren seleccionado
-         */
-        function aplicarSeleccionTren(tipo) {
-            const trenElement = document.querySelector(`[data-tren="${tipo}"]`);
-            if (trenElement) {
-                trenElement.classList.add('active');
-            }
-        }
-        
-        /**
-         * Actualiza el campo hidden con el tipo de tren seleccionado
-         * @param {string} tipo - Tipo de tren seleccionado
-         */
-        function actualizarCampoTren(tipo) {
-            const hiddenField = document.getElementById('tipo_tren');
-            if (hiddenField) {
-                hiddenField.value = tipo;
-                console.log(`Campo tipo_tren actualizado: ${tipo}`);
-            }
-        }
-        
-        /**
-         * Maneja la visualización de la configuración del tren y mensajes informativos
-         * @param {string} tipo - Tipo de tren seleccionado
-         */
-        function manejarConfiguracionTren(tipo) {
-            const trenConfig = document.getElementById('trenTuristicoConfig');
-            const expeditionInfo = document.getElementById('expeditionInfo');
-            const grupoPrecioTren = document.getElementById('grupo_precio_tren');
-            
-            if (tipo === 'vistadome') {
-                // Mostrar configuración del tren turístico
-                if (trenConfig) {
-                    trenConfig.classList.add('show');
-                    console.log('Configuración Vistadome mostrada');
-                }
-                // Ocultar mensaje informativo de Expedition
-                if (expeditionInfo) {
-                    expeditionInfo.style.display = 'none';
-                }
-                // Resaltar el campo de precio en PASO 5 (Tren)
-                if (grupoPrecioTren) {
-                    grupoPrecioTren.style.background = 'rgba(194, 65, 12, 0.1)';
-                    grupoPrecioTren.style.borderRadius = '12px';
-                    grupoPrecioTren.style.padding = '16px';
-                    grupoPrecioTren.style.border = '2px solid rgba(194, 65, 12, 0.3)';
-                }
-            } else if (tipo === 'expedition') {
-                // Ocultar configuración del tren turístico
-                if (trenConfig) {
-                    trenConfig.classList.remove('show');
-                    console.log('Configuración Vistadome ocultada');
-                }
-                // Mostrar mensaje informativo de Expedition
-                if (expeditionInfo) {
-                    expeditionInfo.style.display = 'block';
-                    console.log('Mensaje informativo de Expedition mostrado');
-                }
-                // Quitar resaltado del campo de precio en PASO 5 (Tren)
-                if (grupoPrecioTren) {
-                    grupoPrecioTren.style.background = '';
-                    grupoPrecioTren.style.borderRadius = '';
-                    grupoPrecioTren.style.padding = '';
-                    grupoPrecioTren.style.border = '';
-                }
+
+        function seleccionarTransporte(tipo) {
+            // Remover selección previa
+            document.querySelectorAll('.transport-option').forEach(opt => opt.classList.remove('selected'));
+
+            // Seleccionar nuevo
+            const transportOption = document.querySelector(`[data-transport="${tipo}"]`);
+            if (transportOption) transportOption.classList.add('selected');
+
+            tipoTransporteSeleccionado = tipo;
+            const hiddenField = document.getElementById('tipoTransporte');
+            if (hiddenField) hiddenField.value = tipo;
+
+            // Mostrar/ocultar configuración
+            const config = document.getElementById('transporteConfig');
+            if (tipo === 'turistico') {
+                if (config) config.classList.add('show');
+                console.log('Tren turístico seleccionado - Se requiere configuración');
+            } else if (tipo === 'local') {
+                if (config) config.classList.remove('show');
+                console.log('Tren local seleccionado - Incluido automáticamente');
+                // Limpiar campos del tren turístico
+                const personasTren = document.getElementById('personasTren');
+                const horaTren = document.getElementById('horaTren');
+                const fechaTren = document.getElementById('fechaTren');
+                const precioTotalTren = document.getElementById('precioTotalTren');
+                if (personasTren) personasTren.value = '';
+                if (horaTren) horaTren.value = '';
+                if (fechaTren) fechaTren.value = '';
+                if (precioTotalTren) precioTotalTren.value = '';
             }
         }
         
@@ -1646,8 +1664,7 @@
                 tipo_habitacion: formData.get('tipo_habitacion'),
                 categoria_hotel: formData.get('categoria_hotel'),
                 tipo_tren: tipoTrenSeleccionado,
-                hora_ida_tren: formData.get('hora_ida_tren') || null,
-                hora_retorno_tren: formData.get('hora_retorno_tren') || null,
+                tren_horario: formData.get('tren_horario') || null,
                 personas_tren: formData.get('personas_tren') || null,
                 adelanto_pagado: parseFloat(formData.get('adelanto_pagado')) || 0,
                 observaciones: formData.get('observaciones') || '',
@@ -1890,8 +1907,7 @@
                 
                 // Datos del tren
                 tipo_tren: tipoTrenSeleccionado === 'expedition' ? 'Expedition (Local)' : 'Vistadome (Turístico)',
-                hora_ida_tren: document.getElementById('hora_ida_tren') ? document.getElementById('hora_ida_tren').value || 'N/A' : 'N/A',
-                hora_retorno_tren: document.getElementById('hora_retorno_tren') ? document.getElementById('hora_retorno_tren').value || 'N/A' : 'N/A',
+                tren_horario: document.getElementById('tren_horario') ? document.getElementById('tren_horario').value || 'N/A' : 'N/A',
                 personas_tren: document.getElementById('personas_tren') ? document.getElementById('personas_tren').value || 'N/A' : 'N/A',
                 precio_tren: document.getElementById('precio_tren') ? document.getElementById('precio_tren').value || 'N/A' : 'N/A',
                 
