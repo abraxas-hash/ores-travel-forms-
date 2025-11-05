@@ -1068,36 +1068,48 @@
                             ℹ️ Complete los siguientes datos para el tren turístico Vistadome
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label" for="hora_ida_tren">🕐 Hora de Salida (Ida):</label>
-                            <input type="time" id="hora_ida_tren" name="hora_ida_tren" class="form-input"
-                                   placeholder="Ej: 06:10">
-                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">
-                                💡 Horario de salida del tren hacia Aguas Calientes
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="horarioIdaTren">🕐 HORARIO DE IDA *</label>
+                                <input type="text" id="horarioIdaTren" name="horario_ida_tren" class="form-input"
+                                       placeholder="Ej: 08:30 - Cusco a Aguas Calientes" oninput="calcularTotalTren()">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="horarioRetornoTren">🕐 HORARIO DE RETORNO *</label>
+                                <input type="text" id="horarioRetornoTren" name="horario_retorno_tren" class="form-input"
+                                       placeholder="Ej: 14:00 - Aguas Calientes a Cusco" oninput="calcularTotalTren()">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="hora_retorno_tren">🕐 Hora de Retorno:</label>
-                            <input type="time" id="hora_retorno_tren" name="hora_retorno_tren" class="form-input"
-                                   placeholder="Ej: 16:30">
-                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">
-                                💡 Horario de retorno desde Aguas Calientes
-                            </div>
+                            <label class="form-label" for="personasTren">👥 PERSONAS EN TREN *</label>
+                            <input type="text" id="personasTren" name="personas_tren" class="form-input"
+                                   placeholder="Ej: 2 adultos, 1 niño" oninput="calcularTotalTren()">
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="personas_tren">PERSONAS EN TREN:</label>
-                            <input type="text" id="personas_tren" name="personas_tren" class="form-input"
-                                   placeholder="Ej: 2 adultos, 1 niño">
+                            <label class="form-label" for="precioPorPersonaTren">💰 PRECIO POR PERSONA (USD) *</label>
+                            <input type="text" id="precioPorPersonaTren" name="precio_por_persona_tren" class="form-input"
+                                   placeholder="Ingresa el precio por persona en USD" oninput="calcularTotalTren()">
+                            <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px 16px; margin-top: 8px; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text-secondary);">
+                                <span style="font-size: 1.1rem;">💡</span>
+                                <span>El total se calculará automáticamente según el número de personas</span>
+                            </div>
                         </div>
 
-                        <div class="form-group" id="grupo_precio_tren">
-                            <label class="form-label" for="precio_tren">💰 Precio del Tren Turístico (USD):</label>
-                            <input type="text" id="precio_tren" name="precio_tren" class="form-input"
-                                   placeholder="Ej: 150.00 (cualquier formato)">
-                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">
-                                💡 Precio en dólares del tren turístico Vistadome por persona.
+                        <!-- Recuadro destacado del total -->
+                        <div style="background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%); border: 2px solid var(--gold); border-radius: 16px; padding: 24px; margin-top: 24px; position: relative;">
+                            <div style="display: flex; align-items: center; gap: 8px; color: var(--gold); font-weight: 700; text-transform: uppercase; font-size: 1rem; margin-bottom: 8px; letter-spacing: 1px;">
+                                <span>💲</span>
+                                <span>TOTAL DEL TREN TURÍSTICO:</span>
+                            </div>
+
+                            <div id="totalTrenCalculado" style="font-size: 2.5rem; font-weight: 800; color: var(--text-primary); text-align: right; line-height: 1; margin-bottom: 8px;">
+                                <span style="font-size: 1.2rem; font-weight: 400; color: var(--text-muted); padding: 8px 0;">Ingresa el precio por persona y la cantidad de personas</span>
+                            </div>
+
+                            <div id="calculoDetalleTren" style="text-align: right; color: var(--text-secondary); font-size: 0.9rem; font-style: italic; margin-top: 4px;">
+                                <!-- Se mostrará el detalle del cálculo aquí -->
                             </div>
                         </div>
                     </div>
@@ -1586,9 +1598,86 @@
                     grupoPrecioTren.style.padding = '';
                     grupoPrecioTren.style.border = '';
                 }
+                // Limpiar campos del tren turístico
+                const horarioIdaTren = document.getElementById('horarioIdaTren');
+                const horarioRetornoTren = document.getElementById('horarioRetornoTren');
+                const personasTren = document.getElementById('personasTren');
+                const precioPorPersonaTren = document.getElementById('precioPorPersonaTren');
+                if (horarioIdaTren) horarioIdaTren.value = '';
+                if (horarioRetornoTren) horarioRetornoTren.value = '';
+                if (personasTren) personasTren.value = '';
+                if (precioPorPersonaTren) precioPorPersonaTren.value = '';
+                // Limpiar el total calculado
+                const totalTrenElement = document.getElementById('totalTrenCalculado');
+                const calculoDetalleElement = document.getElementById('calculoDetalleTren');
+                if (totalTrenElement) {
+                    totalTrenElement.innerHTML = '<span style="font-size: 1.2rem; font-weight: 400; color: var(--text-muted); padding: 8px 0;">Ingresa el precio por persona y la cantidad de personas</span>';
+                }
+                if (calculoDetalleElement) {
+                    calculoDetalleElement.textContent = '';
+                }
             }
         }
-        
+
+        /**
+         * Calcula el total del tren en tiempo real
+         */
+        function calcularTotalTren() {
+            const precioPorPersonaInput = document.getElementById('precioPorPersonaTren');
+            const personasTrenInput = document.getElementById('personasTren');
+            const totalTrenElement = document.getElementById('totalTrenCalculado');
+            const calculoDetalleElement = document.getElementById('calculoDetalleTren');
+
+            const precioPorPersona = parseFloat(precioPorPersonaInput?.value) || 0;
+
+            // Extraer número de personas del texto (buscar números)
+            const personasTexto = personasTrenInput?.value || '';
+            const numeroPersonas = extraerNumeroPersonas(personasTexto);
+
+            const total = precioPorPersona * numeroPersonas;
+
+            if (precioPorPersona > 0 && numeroPersonas > 0) {
+                // Mostrar el total calculado
+                totalTrenElement.innerHTML = `<span>USD ${total.toFixed(2)}</span>`;
+
+                // Mostrar el detalle del cálculo
+                calculoDetalleElement.textContent = `usd. ${precioPorPersona.toFixed(2)} × ${numeroPersonas} personas = USD ${total.toFixed(2)}`;
+            } else {
+                // Mostrar mensaje placeholder
+                totalTrenElement.innerHTML = '<span style="font-size: 1.2rem; font-weight: 400; color: var(--text-muted); padding: 8px 0;">Ingresa el precio por persona y la cantidad de personas</span>';
+                calculoDetalleElement.textContent = '';
+            }
+        }
+
+        /**
+         * Función auxiliar para extraer número de personas del texto
+         * @param {string} texto - Texto con el número de personas
+         * @returns {number} - Número de personas extraído
+         */
+        function extraerNumeroPersonas(texto) {
+            if (!texto) return 0;
+            // Buscar números en el texto
+            const numeros = texto.match(/\d+/);
+            return numeros ? parseInt(numeros[0]) : 0;
+        }
+
+        /**
+         * Función para calcular total del tren turístico (para envío de datos)
+         * @returns {number} - Precio total calculado
+         */
+        function calcularPrecioTotalTren() {
+            const precioPorPersonaInput = document.getElementById('precioPorPersonaTren');
+            const personasTrenInput = document.getElementById('personasTren');
+
+            const precioPorPersona = parseFloat(precioPorPersonaInput?.value) || 0;
+
+            // Extraer número de personas del texto
+            const personasTexto = personasTrenInput?.value || '';
+            const numeroPersonas = extraerNumeroPersonas(personasTexto);
+
+            return precioPorPersona * numeroPersonas;
+        }
+
         // ==========================================
         // PASO 4: ALOJAMIENTO
         // ==========================================
@@ -2009,10 +2098,11 @@
 
                 // Configuración de tren (campos directos)
                 tipo_tren: configTren.tipo_tren,
-                hora_ida_tren: configTren.hora_ida_tren,
-                hora_retorno_tren: configTren.hora_retorno_tren,
+                horario_ida_tren: configTren.horario_ida_tren,
+                horario_retorno_tren: configTren.horario_retorno_tren,
                 personas_tren: configTren.personas_tren,
-                precio_tren: configTren.precio_tren,
+                precio_por_persona_tren: configTren.precio_por_persona_tren,
+                precio_total_tren: configTren.precio_total_tren,
 
                 // Observaciones
                 observaciones: formData.get('observaciones') || '',
@@ -2051,18 +2141,20 @@
 
             const config = {
                 tipo_tren: tipoTren,
-                hora_ida_tren: '',
-                hora_retorno_tren: '',
+                horario_ida_tren: '',
+                horario_retorno_tren: '',
                 personas_tren: '',
-                precio_tren: ''
+                precio_por_persona_tren: '',
+                precio_total_tren: 0
             };
 
             // Si es vistadome, obtener configuración adicional
             if (tipoTren === 'vistadome') {
-                config.hora_ida_tren = document.getElementById('hora_ida_tren')?.value || '';
-                config.hora_retorno_tren = document.getElementById('hora_retorno_tren')?.value || '';
-                config.personas_tren = document.getElementById('personas_tren')?.value || '';
-                config.precio_tren = document.getElementById('precio_tren')?.value || '';
+                config.horario_ida_tren = document.getElementById('horarioIdaTren')?.value || '';
+                config.horario_retorno_tren = document.getElementById('horarioRetornoTren')?.value || '';
+                config.personas_tren = document.getElementById('personasTren')?.value || '';
+                config.precio_por_persona_tren = document.getElementById('precioPorPersonaTren')?.value || '';
+                config.precio_total_tren = calcularPrecioTotalTren();
             }
 
             return config;
