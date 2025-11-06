@@ -265,7 +265,7 @@
         .form-input, .form-select {
             width: 100%;
             padding: 16px 20px;
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.25);
             border: 2px solid rgba(255, 255, 255, 0.1);
             border-radius: 14px;
             color: var(--text-primary);
@@ -276,7 +276,7 @@
         .form-input:focus, .form-select:focus {
             outline: none;
             border-color: var(--primary);
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.35);
         }
         
         .form-row {
@@ -1038,14 +1038,14 @@
                     <div class="tren-options">
                         <div class="tren-option" data-tren="expedition" onclick="seleccionarTren('expedition')">
                             <span class="tren-icon">🚂</span>
-                            <div class="tren-title">Expedition</div>
-                            <div class="tren-price">✅ Incluido en el programa</div>
+                            <div class="tren-title">TREN LOCAL</div>
+                            <div class="tren-price">(Incluye automáticamente)</div>
                         </div>
 
                         <div class="tren-option" data-tren="vistadome" onclick="seleccionarTren('vistadome')">
                             <span class="tren-icon">🚅</span>
-                            <div class="tren-title">Vistadome</div>
-                            <div class="tren-price">💰 Costo adicional</div>
+                            <div class="tren-title">TREN TURÍSTICO</div>
+                            <div class="tren-price">(Requiere configuración)</div>
                         </div>
                     </div>
 
@@ -1175,6 +1175,8 @@
                     </div>
                     
                     <input type="hidden" id="modalidadPrecio" name="modalidad_precio">
+                    <input type="hidden" id="precio_por_persona_paquete_hidden" name="precio_por_persona_paquete">
+                    <input type="hidden" id="numero_personas_hidden" name="numero_personas">
                     
                     <div id="precioPaqueteConfig" class="price-config">
                         <div style="font-weight: 600; margin-bottom: 16px; color: var(--primary);">
@@ -1802,6 +1804,25 @@
         }
 
         /**
+         * Actualiza los campos ocultos con los valores calculados para evitar null en webhook
+         */
+        function actualizarCamposOcultos() {
+            const modalidad = document.getElementById('modalidadPrecio')?.value;
+            const precioPorPersona = document.getElementById('precioPorPersonaPaquete')?.value;
+            const numeroPersonas = document.getElementById('numeroPersonas')?.value;
+            
+            if (modalidad) {
+                document.getElementById('modalidad_precio_hidden').value = modalidad;
+            }
+            if (precioPorPersona) {
+                document.getElementById('precio_por_persona_paquete_hidden').value = precioPorPersona;
+            }
+            if (numeroPersonas) {
+                document.getElementById('numero_personas_hidden').value = numeroPersonas;
+            }
+        }
+
+        /**
          * Calcula el total para el modo de Precios Individuales
          * Total = suma(precios por actividad) × número de personas
          */
@@ -1830,6 +1851,9 @@
                 totalElement.innerHTML = '<span style="font-size: 1.2rem; font-weight: 400; color: var(--text-muted); padding: 8px 0;">Ingresa los precios y el número de personas</span>';
                 detalleElement.textContent = '';
             }
+            
+            // Actualizar campos ocultos para evitar null en webhook
+            actualizarCamposOcultos();
         }
 
         /**
@@ -1855,6 +1879,9 @@
                 totalElement.innerHTML = '<span style="font-size: 1.2rem; font-weight: 400; color: var(--text-muted); padding: 8px 0;">Ingresa el precio por persona y el número de personas</span>';
                 detalleElement.textContent = '';
             }
+            
+            // Actualizar campos ocultos para evitar null en webhook
+            actualizarCamposOcultos();
         }
 
         /**
@@ -1864,6 +1891,7 @@
         function recalcularPrecios() {
             calcularTotalPaquete();
             calcularTotalIndividual();
+            actualizarCamposOcultos();
         }
         
         // ==========================================
