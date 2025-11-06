@@ -1177,6 +1177,7 @@
                     <input type="hidden" id="modalidadPrecio" name="modalidad_precio">
                     <input type="hidden" id="precio_por_persona_paquete_hidden" name="precio_por_persona_paquete">
                     <input type="hidden" id="numero_personas_hidden" name="numero_personas">
+                    <input type="hidden" id="precio_total_hidden" name="precio_total">
                     
                     <div id="precioPaqueteConfig" class="price-config">
                         <div style="font-weight: 600; margin-bottom: 16px; color: var(--primary);">
@@ -1811,23 +1812,47 @@
             const precioPorPersona = document.getElementById('precioPorPersonaPaquete')?.value;
             const numeroPersonas = document.getElementById('numeroPersonas')?.value;
             
-            if (modalidad) {
-                const modalidadHidden = document.getElementById('modalidadPrecio');
-                if (modalidadHidden) {
-                    modalidadHidden.value = modalidad;
+            // Obtener precio total según la modalidad seleccionada
+            let precioTotal = '0';
+            if (modalidadPrecioSeleccionada === 'paquete') {
+                const totalElement = document.getElementById('totalPaqueteCalculado');
+                if (totalElement) {
+                    const textoTotal = totalElement.textContent || totalElement.innerText || '';
+                    // Extraer solo números del texto, eliminando puntos al inicio
+                    const match = textoTotal.match(/\d+(?:[.,]\d+)*(?:\.\d+)?/);
+                    const numeroLimpio = match ? match[0].replace(/,/g, '') : '0';
+                    precioTotal = numeroLimpio || '0';
+                }
+            } else if (modalidadPrecioSeleccionada === 'individual') {
+                const totalElement = document.getElementById('totalIndividualCalculado');
+                if (totalElement) {
+                    const textoTotal = totalElement.textContent || totalElement.innerText || '';
+                    // Extraer solo números del texto, eliminando puntos al inicio
+                    const match = textoTotal.match(/\d+(?:[.,]\d+)*(?:\.\d+)?/);
+                    const numeroLimpio = match ? match[0].replace(/,/g, '') : '0';
+                    precioTotal = numeroLimpio || '0';
                 }
             }
-            if (precioPorPersona) {
-                const precioHidden = document.getElementById('precio_por_persona_paquete_hidden');
-                if (precioHidden) {
-                    precioHidden.value = precioPorPersona;
-                }
+            
+            // Actualizar campos ocultos
+            const modalidadHidden = document.getElementById('modalidadPrecio');
+            if (modalidadHidden && modalidad) {
+                modalidadHidden.value = modalidad;
             }
-            if (numeroPersonas) {
-                const numeroHidden = document.getElementById('numero_personas_hidden');
-                if (numeroHidden) {
-                    numeroHidden.value = numeroPersonas;
-                }
+            
+            const precioHidden = document.getElementById('precio_por_persona_paquete_hidden');
+            if (precioHidden && precioPorPersona) {
+                precioHidden.value = precioPorPersona;
+            }
+            
+            const numeroHidden = document.getElementById('numero_personas_hidden');
+            if (numeroHidden && numeroPersonas) {
+                numeroHidden.value = numeroPersonas;
+            }
+            
+            const totalHidden = document.getElementById('precio_total_hidden');
+            if (totalHidden && precioTotal) {
+                totalHidden.value = precioTotal;
             }
         }
 
