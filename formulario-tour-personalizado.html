@@ -1181,9 +1181,29 @@
                             💎 PRECIO PAQUETE PRIVADO
                         </div>
                         <div class="form-group">
-                            <label class="form-label" for="precioTotal">Precio total del tour (S/.) *</label>
-                            <input type="number" id="precioTotal" name="precio_total" class="form-input" 
-                                   placeholder="Ingresa el precio total en soles" step="0.01" min="0">
+                            <label class="form-label" for="precioPorPersonaPaquete">💰 PRECIO POR PERSONA (S/.) *</label>
+                            <input type="number" id="precioPorPersonaPaquete" name="precio_por_persona_paquete" class="form-input"
+                                   placeholder="Ingresa el precio por persona en soles" step="0.01" min="0" oninput="calcularTotalPaquete()">
+                            <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px 16px; margin-top: 8px; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text-secondary);">
+                                <span style="font-size: 1.1rem;">💡</span>
+                                <span>El total se calculará automáticamente según el número de personas ingresado en el PASO 6</span>
+                            </div>
+                        </div>
+
+                        <!-- Recuadro destacado del total -->
+                        <div style="background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%); border: 2px solid var(--gold); border-radius: 16px; padding: 24px; margin-top: 24px; position: relative;">
+                            <div style="display: flex; align-items: center; gap: 8px; color: var(--gold); font-weight: 700; text-transform: uppercase; font-size: 1rem; margin-bottom: 8px; letter-spacing: 1px;">
+                                <span>💲</span>
+                                <span>PRECIO TOTAL DEL PAQUETE:</span>
+                            </div>
+
+                            <div id="totalPaqueteCalculado" style="font-size: 2.5rem; font-weight: 800; color: var(--text-primary); text-align: right; line-height: 1; margin-bottom: 8px;">
+                                <span style="font-size: 1.2rem; font-weight: 400; color: var(--text-muted); padding: 8px 0;">Ingresa el precio por persona y el número de personas</span>
+                            </div>
+
+                            <div id="calculoDetallePaquete" style="text-align: right; color: var(--text-secondary); font-size: 0.9rem; font-style: italic; margin-top: 4px;">
+                                <!-- Se mostrará el detalle del cálculo aquí -->
+                            </div>
                         </div>
                     </div>
                     
@@ -1191,9 +1211,25 @@
                         <div style="font-weight: 600; margin-bottom: 16px; color: var(--primary);">
                             🧮 PRECIOS INDIVIDUALES
                         </div>
+                        <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin-bottom: 16px; color: var(--text-secondary); font-size: 0.9rem;">
+                            💡 Ingresa el precio por persona para cada actividad. El total se calculará automáticamente.
+                        </div>
                         <div id="preciosIndividuales" class="individual-prices"></div>
-                        <div id="subtotalIndividual" class="total-calculation" style="display: none;">
-                            💰 SUBTOTAL: S/. <span id="subtotalAmount">0.00</span>
+
+                        <!-- Recuadro destacado del total -->
+                        <div style="background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%); border: 2px solid var(--gold); border-radius: 16px; padding: 24px; margin-top: 24px; position: relative;">
+                            <div style="display: flex; align-items: center; gap: 8px; color: var(--gold); font-weight: 700; text-transform: uppercase; font-size: 1rem; margin-bottom: 8px; letter-spacing: 1px;">
+                                <span>💲</span>
+                                <span>PRECIO TOTAL:</span>
+                            </div>
+
+                            <div id="totalIndividualCalculado" style="font-size: 2.5rem; font-weight: 800; color: var(--text-primary); text-align: right; line-height: 1; margin-bottom: 8px;">
+                                <span style="font-size: 1.2rem; font-weight: 400; color: var(--text-muted); padding: 8px 0;">Ingresa los precios y el número de personas</span>
+                            </div>
+
+                            <div id="calculoDetalleIndividual" style="text-align: right; color: var(--text-secondary); font-size: 0.9rem; font-style: italic; margin-top: 4px;">
+                                <!-- Se mostrará el detalle del cálculo aquí -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1221,8 +1257,8 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="numeroPersonas">Número de personas *</label>
-                            <input type="text" id="numeroPersonas" name="numero_personas" class="form-input" 
-                                   placeholder="Ej: 2 adultos, 1 niño" required>
+                            <input type="text" id="numeroPersonas" name="numero_personas" class="form-input"
+                                   placeholder="Ej: 2 adultos, 1 niño" required oninput="recalcularPrecios()">
                         </div>
                     </div>
                     
@@ -1452,38 +1488,41 @@
         function generarItinerario() {
             const actividadInicial = document.getElementById('actividadInicial').value;
             const fechaInicio = document.getElementById('fechaInicio').value;
-            
+
             if (!actividadInicial || !fechaInicio || actividadesSeleccionadas.length === 0) {
                 document.getElementById('itinerarioGenerado').style.display = 'none';
                 return;
             }
-            
+
             itinerario = [];
-            
+
             // Ordenar actividades comenzando con la inicial
             const actividadesOrdenadas = [actividadInicial, ...actividadesSeleccionadas.filter(a => a !== actividadInicial)];
-            
+
             // Generar itinerario
-            const fechaBase = new Date(fechaInicio);
+            // FIX: Parsear fecha correctamente para evitar problemas de zona horaria
+            const [year, month, day] = fechaInicio.split('-').map(Number);
+            const fechaBase = new Date(year, month - 1, day); // month-1 porque JS cuenta meses desde 0
+
             actividadesOrdenadas.forEach((actividad, index) => {
                 const fecha = new Date(fechaBase);
                 fecha.setDate(fecha.getDate() + index);
-                
+
                 itinerario.push({
                     dia: index + 1,
                     fecha: fecha.toLocaleDateString('es-ES'),
                     actividad: actividad
                 });
             });
-            
+
             // Mostrar itinerario
             const content = document.getElementById('itinerarioContent');
-            content.innerHTML = itinerario.map(item => 
+            content.innerHTML = itinerario.map(item =>
                 `<div class="itinerary-item">• DÍA ${item.dia} (${item.fecha}): ${item.actividad}</div>`
             ).join('');
-            
+
             document.getElementById('itinerarioGenerado').style.display = 'block';
-            
+
             // Actualizar configuración de noches
             actualizarConfiguracionNoches();
         }
@@ -1744,35 +1783,87 @@
         
         function actualizarPreciosIndividuales() {
             const container = document.getElementById('preciosIndividuales');
-            
+
             if (actividadesSeleccionadas.length === 0) {
                 container.innerHTML = '';
-                document.getElementById('subtotalIndividual').style.display = 'none';
                 return;
             }
-            
+
             container.innerHTML = actividadesSeleccionadas.map(actividad => `
                 <div class="form-group">
-                    <label class="form-label">${actividad}:</label>
-                    <input type="number" name="precio_${actividad.replace(/\s+/g, '_')}" 
-                           class="form-input precio-individual" placeholder="S/. 0.00" 
-                           step="0.01" min="0" onchange="calcularSubtotal()">
+                    <label class="form-label">${actividad} - Precio por persona (S/.)*:</label>
+                    <input type="number" name="precio_${actividad.replace(/\s+/g, '_')}"
+                           class="form-input precio-individual" placeholder="S/. 0.00"
+                           step="0.01" min="0" oninput="calcularTotalIndividual()">
                 </div>
             `).join('');
-            
-            calcularSubtotal();
+
+            calcularTotalIndividual();
         }
-        
-        function calcularSubtotal() {
+
+        /**
+         * Calcula el total para el modo de Precios Individuales
+         * Total = suma(precios por actividad) × número de personas
+         */
+        function calcularTotalIndividual() {
             const inputs = document.querySelectorAll('.precio-individual');
+            const numeroPersonasInput = document.getElementById('numeroPersonas');
+            const totalElement = document.getElementById('totalIndividualCalculado');
+            const detalleElement = document.getElementById('calculoDetalleIndividual');
+
+            // Calcular subtotal (suma de precios por persona de todas las actividades)
             let subtotal = 0;
-            
             inputs.forEach(input => {
                 subtotal += parseFloat(input.value) || 0;
             });
-            
-            document.getElementById('subtotalAmount').textContent = subtotal.toFixed(2);
-            document.getElementById('subtotalIndividual').style.display = 'block';
+
+            // Obtener número de personas
+            const numeroPersonasTexto = numeroPersonasInput?.value || '';
+            const numeroPersonas = extraerNumeroPersonas(numeroPersonasTexto) || 0;
+
+            const total = subtotal * numeroPersonas;
+
+            if (subtotal > 0 && numeroPersonas > 0) {
+                totalElement.innerHTML = `<span>S/. ${total.toFixed(2)}</span>`;
+                detalleElement.textContent = `S/. ${subtotal.toFixed(2)} (por persona) × ${numeroPersonas} personas = S/. ${total.toFixed(2)}`;
+            } else {
+                totalElement.innerHTML = '<span style="font-size: 1.2rem; font-weight: 400; color: var(--text-muted); padding: 8px 0;">Ingresa los precios y el número de personas</span>';
+                detalleElement.textContent = '';
+            }
+        }
+
+        /**
+         * Calcula el total para el modo Paquete Privado
+         * Total = precio por persona × número de personas
+         */
+        function calcularTotalPaquete() {
+            const precioPorPersonaInput = document.getElementById('precioPorPersonaPaquete');
+            const numeroPersonasInput = document.getElementById('numeroPersonas');
+            const totalElement = document.getElementById('totalPaqueteCalculado');
+            const detalleElement = document.getElementById('calculoDetallePaquete');
+
+            const precioPorPersona = parseFloat(precioPorPersonaInput?.value) || 0;
+            const numeroPersonasTexto = numeroPersonasInput?.value || '';
+            const numeroPersonas = extraerNumeroPersonas(numeroPersonasTexto) || 0;
+
+            const total = precioPorPersona * numeroPersonas;
+
+            if (precioPorPersona > 0 && numeroPersonas > 0) {
+                totalElement.innerHTML = `<span>S/. ${total.toFixed(2)}</span>`;
+                detalleElement.textContent = `S/. ${precioPorPersona.toFixed(2)} × ${numeroPersonas} personas = S/. ${total.toFixed(2)}`;
+            } else {
+                totalElement.innerHTML = '<span style="font-size: 1.2rem; font-weight: 400; color: var(--text-muted); padding: 8px 0;">Ingresa el precio por persona y el número de personas</span>';
+                detalleElement.textContent = '';
+            }
+        }
+
+        /**
+         * Recalcula los precios cuando cambia el número de personas
+         * Llama a ambas funciones de cálculo (paquete e individual)
+         */
+        function recalcularPrecios() {
+            calcularTotalPaquete();
+            calcularTotalIndividual();
         }
         
         // ==========================================
