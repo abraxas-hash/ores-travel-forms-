@@ -1246,37 +1246,34 @@
                         <span>PASO 6: DATOS DEL CLIENTE</span>
                     </div>
                     
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label" for="nombre_cliente">👤 Nombre completo *</label>
-                            <input type="text" id="nombre_cliente" name="nombre_cliente" class="form-input" 
-                                   placeholder="Ingresa el nombre completo" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="telefono">📞 Teléfono/WhatsApp *</label>
-                            <input type="tel" id="telefono" name="telefono" class="form-input" 
-                                   placeholder="Ej: +51 999 888 777" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label" for="numeroPersonas">👥 Número de personas *</label>
-                            <input type="text" id="numeroPersonas" name="numero_personas" class="form-input" 
-                                   placeholder="Ej: 2 adultos, 1 niño" oninput="recalcularPrecios()" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="adelantoPagado">💰 Adelanto pagado (S/.)</label>
-                            <input type="number" id="adelantoPagado" name="adelanto_pagado" class="form-input" 
-                                   placeholder="0.00" step="0.01" min="0">
-                        </div>
+                    <div class="form-group">
+                        <label class="form-label" for="nombreCliente">Nombre completo *</label>
+                        <input type="text" id="nombreCliente" name="nombre_cliente" class="form-input" 
+                               placeholder="Ingresa el nombre completo" required>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="observaciones">📝 Observaciones especiales</label>
+                        <label class="form-label" for="telefono">Teléfono/WhatsApp *</label>
+                        <input type="tel" id="telefono" name="telefono" class="form-input" 
+                               placeholder="Ej: +51 999 888 777" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="numeroPersonas">Número de personas *</label>
+                        <input type="text" id="numeroPersonas" name="numero_personas" class="form-input" 
+                               placeholder="Ej: 2 adultos, 1 niño" oninput="recalcularPrecios()" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="observaciones">Observaciones adicionales</label>
                         <textarea id="observaciones" name="observaciones" class="form-input" 
-                                  placeholder="Alergias, restricciones dietéticas, requerimientos especiales..." 
-                                  rows="3" style="resize: vertical;"></textarea>
+                                  placeholder="Alguna solicitud especial, dietary restrictions, etc." rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="adelantoPagado">Adelanto pagado (S/.)</label>
+                        <input type="number" id="adelantoPagado" name="adelanto_pagado" class="form-input" 
+                               placeholder="0.00" step="0.01" min="0">
                     </div>
                 </div>
                 
@@ -1285,38 +1282,42 @@
                 <!-- PASO 7: DATOS DEL ASESOR -->
                 <div class="step-section">
                     <div class="step-title">
-                        <span>👔</span>
+                        <span>👨‍💼</span>
                         <span>PASO 7: DATOS DEL ASESOR</span>
                     </div>
                     
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label" for="nombreAsesor">👤 Nombre del asesor *</label>
-                            <input type="text" id="nombreAsesor" name="nombre_asesor" class="form-input" 
-                                   placeholder="Nombre del asesor responsable" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="emailAsesor">📧 Email del asesor *</label>
-                            <input type="email" id="emailAsesor" name="email_asesor" class="form-input" 
-                                   placeholder="asesor@ores.com.pe" required>
-                        </div>
+                    <div class="form-group">
+                        <label class="form-label" for="nombreAsesor">Nombre del Asesor *</label>
+                        <input type="text" id="nombreAsesor" name="nombre_asesor" class="form-input" 
+                               placeholder="Nombre del asesor responsable" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="emailAsesor">Email del Asesor *</label>
+                        <input type="email" id="emailAsesor" name="email_asesor" class="form-input" 
+                               placeholder="asesor@ores.com" required>
                     </div>
                 </div>
                 
-                <div class="step-divider"></div>
-                
-                <!-- ENVÍO -->
                 <div class="submit-section">
                     <button type="submit" class="submit-button" id="submitButton">
-                        <span id="submitText">📄 GENERAR COTIZACIÓN PDF</span>
+                        <span id="submitText">📄 GENERAR COTIZACIÓN</span>
                         <div class="loading-spinner" id="loadingSpinner"></div>
                     </button>
                 </div>
                 
-                <div id="messageContainer" class="message-container"></div>
+                <div class="message-container" id="messageContainer"></div>
             </form>
         </div>
     </div>
+
+    <!-- Campos ocultos para sincronización del tren turístico -->
+    <input type="hidden" id="personas_tren_hidden" name="personas_tren">
+    <input type="hidden" id="precio_por_persona_tren_hidden" name="precio_por_persona_tren">
+    <input type="hidden" id="precio_total_tren_hidden" name="precio_total_tren">
+    <input type="hidden" id="horario_ida_tren_hidden" name="horario_ida_tren">
+    <input type="hidden" id="horario_retorno_tren_hidden" name="horario_retorno_tren">
+    <input type="hidden" id="tipo_tren_hidden" name="tipo_tren">
 
     <script>
         // ==========================================
@@ -1324,12 +1325,113 @@
         // ==========================================
         
         let actividadesSeleccionadas = [];
+        let categoriaActual = 'all';
         let itinerario = [];
-        let modalidadPrecioSeleccionada = '';
+        let modalidadPrecioSeleccionada = null;
+        let tipoTransporteSeleccionado = 'expedition';
+        const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzf3Xx_7gfJ0qKWmJeYBYvFlJgMPrTOfR7dC5rPa0u2B0E1Q/exec';
+
+        // ==========================================
+        // INICIALIZACIÓN
+        // ==========================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Inicializando formulario tour personalizado...');
+            
+            // Configurar event listeners
+            configurarEventListeners();
+            
+            // Configurar formulario
+            const form = document.getElementById('tourPersonalizadoForm');
+            if (form) {
+                form.addEventListener('submit', enviarCotizacion);
+                console.log('✅ Evento submit configurado');
+            }
+        });
+        
+        function configurarEventListeners() {
+            // Configurar búsqueda
+            const searchInput = document.getElementById('searchActivities');
+            if (searchInput) {
+                searchInput.addEventListener('input', filtrarActividades);
+            }
+            
+            // Configurar eventos de cambio de fecha
+            const fechaInput = document.getElementById('fechaInicio');
+            if (fechaInput) {
+                fechaInput.addEventListener('change', generarItinerario);
+            }
+            
+            // Configurar eventos de precio
+            const precioInput = document.getElementById('precioPorPersonaPaquete');
+            if (precioInput) {
+                precioInput.addEventListener('input', calcularTotalPaquete);
+            }
+            
+            const numeroPersonasInput = document.getElementById('numeroPersonas');
+            if (numeroPersonasInput) {
+                numeroPersonasInput.addEventListener('input', recalcularPrecios);
+            }
+        }
         
         // ==========================================
-        // PASO 1: SELECCIONA ACTIVIDADES
+        // PASO 1: SELECCIÓN DE ACTIVIDADES
         // ==========================================
+        
+        function toggleActivity(element) {
+            const actividad = element.dataset.activity;
+            const checkbox = element.querySelector('.activity-checkbox');
+            
+            if (element.classList.contains('selected')) {
+                // Deseleccionar
+                element.classList.remove('selected');
+                checkbox.textContent = '☐';
+                actividadesSeleccionadas = actividadesSeleccionadas.filter(a => a !== actividad);
+            } else {
+                // Seleccionar
+                element.classList.add('selected');
+                checkbox.textContent = '☑️';
+                actividadesSeleccionadas.push(actividad);
+            }
+            
+            actualizarResumenActividades();
+            actualizarActividadInicial();
+            detectarTransporte();
+            actualizarPreciosIndividuales();
+        }
+        
+        function actualizarResumenActividades() {
+            const summary = document.getElementById('activitySummary');
+            const count = document.getElementById('activityCount');
+            const activities = document.getElementById('selectedActivities');
+            
+            if (actividadesSeleccionadas.length > 0) {
+                summary.style.display = 'block';
+                count.textContent = actividadesSeleccionadas.length;
+                activities.textContent = actividadesSeleccionadas.join(', ');
+            } else {
+                summary.style.display = 'none';
+            }
+        }
+        
+        function filtrarPorCategoria(categoria) {
+            categoriaActual = categoria;
+            
+            // Actualizar tabs
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-category="${categoria}"]`).classList.add('active');
+            
+            // Filtrar actividades
+            document.querySelectorAll('.activity-category').forEach(category => {
+                if (categoria === 'all' || category.dataset.category === categoria) {
+                    category.style.display = 'block';
+                } else {
+                    category.style.display = 'none';
+                }
+            });
+        }
         
         function filtrarActividades() {
             const searchTerm = document.getElementById('searchActivities').value.toLowerCase();
@@ -1339,92 +1441,26 @@
                 const activityName = item.querySelector('.activity-name').textContent.toLowerCase();
                 const category = item.closest('.activity-category');
                 
-                if (activityName.includes(searchTerm)) {
+                // Mostrar si coincide con búsqueda y categoría
+                if (activityName.includes(searchTerm) && 
+                    (categoriaActual === 'all' || category.dataset.category === categoriaActual)) {
                     item.style.display = 'flex';
-                    category.style.display = 'block';
                 } else {
                     item.style.display = 'none';
                 }
             });
-            
-            // Ocultar categorías sin resultados
-            const categories = document.querySelectorAll('.activity-category');
-            categories.forEach(category => {
-                const visibleItems = category.querySelectorAll('.activity-item[style*="flex"]');
-                if (visibleItems.length === 0 && searchTerm !== '') {
-                    category.style.display = 'none';
-                } else {
-                    category.style.display = 'block';
-                }
-            });
-        }
-        
-        function filtrarPorCategoria(categoria) {
-            // Actualizar tabs activos
-            document.querySelectorAll('.category-tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelector(`[data-category="${categoria}"]`).classList.add('active');
-            
-            // Mostrar/ocultar categorías
-            const categories = document.querySelectorAll('.activity-category');
-            categories.forEach(category => {
-                if (categoria === 'all' || category.dataset.category === categoria) {
-                    category.style.display = 'block';
-                } else {
-                    category.style.display = 'none';
-                }
-            });
-        }
-        
-        function toggleActivity(element) {
-            const activity = element.dataset.activity;
-            
-            if (element.classList.contains('selected')) {
-                // Deseleccionar
-                element.classList.remove('selected');
-                element.querySelector('.activity-checkbox').textContent = '☐';
-                actividadesSeleccionadas = actividadesSeleccionadas.filter(a => a !== activity);
-            } else {
-                // Seleccionar
-                element.classList.add('selected');
-                element.querySelector('.activity-checkbox').textContent = '☑️';
-                actividadesSeleccionadas.push(activity);
-            }
-            
-            actualizarResumenActividades();
-            actualizarActividadInicial();
-        }
-        
-        function actualizarResumenActividades() {
-            const summary = document.getElementById('activitySummary');
-            const count = document.getElementById('activityCount');
-            const selected = document.getElementById('selectedActivities');
-            
-            if (actividadesSeleccionadas.length > 0) {
-                count.textContent = actividadesSeleccionadas.length;
-                selected.textContent = actividadesSeleccionadas.join(', ');
-                summary.style.display = 'block';
-            } else {
-                summary.style.display = 'none';
-            }
         }
         
         function actualizarActividadInicial() {
             const select = document.getElementById('actividadInicial');
-            const currentValue = select.value;
-            
             select.innerHTML = '<option value="">Selecciona actividad</option>';
             
-            actividadesSeleccionadas.forEach(activity => {
+            actividadesSeleccionadas.forEach(actividad => {
                 const option = document.createElement('option');
-                option.value = activity;
-                option.textContent = activity;
+                option.value = actividad;
+                option.textContent = actividad;
                 select.appendChild(option);
             });
-            
-            // Mantener selección anterior si aún existe
-            if (actividadesSeleccionadas.includes(currentValue)) {
-                select.value = currentValue;
-            }
         }
         
         // ==========================================
@@ -1434,86 +1470,92 @@
         function generarItinerario() {
             const actividadInicial = document.getElementById('actividadInicial').value;
             const fechaInicio = document.getElementById('fechaInicio').value;
-            
-            if (!actividadInicial || !fechaInicio) {
+
+            if (!actividadInicial || !fechaInicio || actividadesSeleccionadas.length === 0) {
                 document.getElementById('itinerarioGenerado').style.display = 'none';
-                itinerario = [];
-                actualizarConfiguracionNoches();
                 return;
             }
-            
+
             itinerario = [];
-            const fecha = new Date(fechaInicio);
-            
-            actividadesSeleccionadas.forEach((actividad, index) => {
-                const dia = index + 1;
-                const fechaActividad = new Date(fecha);
-                fechaActividad.setDate(fecha.getDate() + index);
-                
+
+            // Ordenar actividades comenzando con la inicial
+            const actividadesOrdenadas = [actividadInicial, ...actividadesSeleccionadas.filter(a => a !== actividadInicial)];
+
+            // Generar itinerario
+            // FIX: Parsear fecha correctamente para evitar problemas de zona horaria
+            const [year, month, day] = fechaInicio.split('-').map(Number);
+            const fechaBase = new Date(year, month - 1, day); // month-1 porque JS cuenta meses desde 0
+
+            actividadesOrdenadas.forEach((actividad, index) => {
+                const fecha = new Date(fechaBase);
+                fecha.setDate(fecha.getDate() + index);
+
                 itinerario.push({
-                    dia: dia,
-                    actividad: actividad,
-                    fecha: fechaActividad.toLocaleDateString('es-ES')
+                    dia: index + 1,
+                    fecha: fecha.toLocaleDateString('es-ES'),
+                    actividad: actividad
                 });
             });
-            
-            // Actualizar visualización
+
+            // Mostrar itinerario
             const content = document.getElementById('itinerarioContent');
-            content.innerHTML = itinerario.map(item => 
-                `<div class="itinerary-item">DÍA ${item.dia}: ${item.actividad} - ${item.fecha}</div>`
+            content.innerHTML = itinerario.map(item =>
+                `<div class="itinerary-item">• DÍA ${item.dia} (${item.fecha}): ${item.actividad}</div>`
             ).join('');
-            
+
             document.getElementById('itinerarioGenerado').style.display = 'block';
+
+            // Actualizar configuración de noches
             actualizarConfiguracionNoches();
         }
         
+
         // ==========================================
         // PASO 3: TREN A MACHU PICCHU
         // ==========================================
         
         function seleccionarTren(tipo) {
-            // Remover selección previa
-            document.querySelectorAll('.tren-option').forEach(option => option.classList.remove('active'));
+            tipoTransporteSeleccionado = tipo;
+            
+            // Actualizar UI
+            document.querySelectorAll('.tren-option').forEach(option => {
+                option.classList.remove('active');
+            });
             document.querySelector(`[data-tren="${tipo}"]`).classList.add('active');
             
-            // Actualizar campo hidden
+            // Configurar campos ocultos
             document.getElementById('tipo_tren').value = tipo;
+            document.getElementById('tipo_tren_hidden').value = tipo;
             
             // Mostrar/ocultar configuraciones
-            document.getElementById('trenTuristicoConfig').classList.remove('show');
-            document.getElementById('expeditionInfo').style.display = 'none';
+            document.getElementById('expeditionInfo').style.display = tipo === 'expedition' ? 'block' : 'none';
+            document.getElementById('trenTuristicoConfig').classList.toggle('show', tipo === 'vistadome');
             
-            if (tipo === 'expedition') {
-                document.getElementById('expeditionInfo').style.display = 'block';
-            } else if (tipo === 'vistadome') {
-                document.getElementById('trenTuristicoConfig').classList.add('show');
-            }
+            console.log(`🚂 Tren seleccionado: ${tipo}`);
         }
         
-        /**
-         * ✅ FUNCIÓN CRÍTICA: Calcula el total del tren y actualiza campos ocultos
-         * Esta función es clave para la sincronización interfaz ↔ webhook
-         */
         function calcularTotalTren() {
-            const tipoTren = document.getElementById('tipo_tren')?.value;
+            const tipoTren = document.getElementById('tipo_tren').value;
             
-            if (tipoTren !== 'vistadome') {
-                return; // Solo calcular para tren turístico
-            }
+            if (tipoTren !== 'vistadome') return;
             
             const precioPorPersonaInput = document.getElementById('precioPorPersonaTren');
             const personasTrenInput = document.getElementById('personasTren');
-            const totalElement = document.getElementById('totalTrenCalculado');
-            const detalleElement = document.getElementById('calculoDetalleTren');
+            const horarioIdaInput = document.getElementById('horarioIdaTren');
+            const horarioRetornoInput = document.getElementById('horarioRetornoTren');
             
-            // Obtener valores
             const precioPorPersona = parseFloat(precioPorPersonaInput?.value) || 0;
             const personasTexto = personasTrenInput?.value || '';
             const numeroPersonas = extraerNumeroPersonas(personasTexto);
-            
             const total = precioPorPersona * numeroPersonas;
             
+            // Actualizar campos ocultos (sincronización)
+            actualizarCamposOcultosTren(numeroPersonas, precioPorPersona, total, horarioIdaInput?.value, horarioRetornoInput?.value);
+            
             // Actualizar visualización
+            const totalElement = document.getElementById('totalTrenCalculado');
+            const detalleElement = document.getElementById('calculoDetalleTren');
+            
             if (precioPorPersona > 0 && numeroPersonas > 0) {
                 totalElement.innerHTML = `<span>USD ${total.toFixed(2)}</span>`;
                 detalleElement.textContent = `USD ${precioPorPersona.toFixed(2)} × ${numeroPersonas} personas = USD ${total.toFixed(2)}`;
@@ -1521,36 +1563,20 @@
                 totalElement.innerHTML = '<span style="font-size: 1.2rem; font-weight: 400; color: var(--text-muted); padding: 8px 0;">Ingresa el precio por persona y la cantidad de personas</span>';
                 detalleElement.textContent = '';
             }
-            
-            // ✅ SINCRONIZACIÓN CRÍTICA: Actualizar campos ocultos
-            actualizarCamposOcultosTren(numeroPersonas, precioPorPersona, total);
         }
         
         /**
-         * ✅ FUNCIÓN v4.12: Actualizar campos ocultos del tren para webhook
-         * Esta función garantiza que los datos lleguen al webhook
+         * ✅ FUNCIÓN MEJORADA: Actualizar campos ocultos del tren
          */
-        function actualizarCamposOcultosTren(numeroPersonas, precioPorPersona, total) {
-            // Crear o actualizar campos ocultos
-            const campos = {
-                'personas_tren_hidden': numeroPersonas.toString(),
-                'precio_por_persona_tren_hidden': precioPorPersona.toString(),
-                'precio_total_tren_hidden': total.toString()
-            };
+        function actualizarCamposOcultosTren(numeroPersonas, precioPorPersona, total, horarioIda, horarioRetorno) {
+            // Sincronizar campos ocultos con valores calculados
+            document.getElementById('personas_tren_hidden').value = numeroPersonas.toString();
+            document.getElementById('precio_por_persona_tren_hidden').value = precioPorPersona.toString();
+            document.getElementById('precio_total_tren_hidden').value = total.toString();
+            document.getElementById('horario_ida_tren_hidden').value = horarioIda || '';
+            document.getElementById('horario_retorno_tren_hidden').value = horarioRetorno || '';
             
-            Object.entries(campos).forEach(([campo, valor]) => {
-                let elemento = document.getElementById(campo);
-                if (!elemento) {
-                    elemento = document.createElement('input');
-                    elemento.type = 'hidden';
-                    elemento.id = campo;
-                    elemento.name = campo;
-                    document.getElementById('tourPersonalizadoForm').appendChild(elemento);
-                }
-                elemento.value = valor;
-            });
-
-            console.log('🔗 SINCRONIZACIÓN TREN - Campos ocultos actualizados:');
+            console.log('🚂 Campos ocultos del tren actualizados:');
             console.log(`   - personas_tren_hidden: ${numeroPersonas}`);
             console.log(`   - precio_por_persona_tren_hidden: ${precioPorPersona}`);
             console.log(`   - precio_total_tren_hidden: ${total}`);
@@ -2598,7 +2624,7 @@
                 </div>
             `;
             
-            document.insertAdjacentHTML('beforeend', modal);
+            document.body.insertAdjacentHTML('beforeend', modal);
         }
         
         /**
