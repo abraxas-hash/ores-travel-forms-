@@ -1918,6 +1918,9 @@
                     throw new Error('Debes seleccionar una modalidad de precio');
                 }
                 
+                // Actualizar campos ocultos antes de recopilar datos
+                actualizarCamposOcultos();
+                
                 // Recopilar datos del formulario
                 const formData = new FormData(e.target);
                 
