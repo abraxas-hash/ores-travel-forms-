@@ -1684,6 +1684,25 @@
 
                 // Mostrar el detalle del cálculo
                 calculoDetalleElement.textContent = `usd. ${precioPorPersona.toFixed(2)} × ${numeroPersonas} personas = USD ${total.toFixed(2)}`;
+                
+                // CORRECCIÓN: Actualizar configuración del tren para que webhook reciba datos correctos
+                const configTren = obtenerConfiguracionTransporte();
+                if (configTren && configTren.precio_total_tren !== total) {
+                    console.log('🚂 Actualizando configuración del tren con nuevo cálculo:');
+                    console.log(`   - Total anterior: ${configTren.precio_total_tren}`);
+                    console.log(`   - Total nuevo: ${total}`);
+                    
+                    // Forzar recálculo de la configuración
+                    const nuevoConfigTren = {
+                        ...configTren,
+                        precio_total_tren: total
+                    };
+                    
+                    // Actualizar el config global si existe
+                    if (typeof configTrenGlobal !== 'undefined') {
+                        configTrenGlobal.precio_total_tren = total;
+                    }
+                }
             } else {
                 // Mostrar mensaje placeholder
                 totalTrenElement.innerHTML = '<span style="font-size: 1.2rem; font-weight: 400; color: var(--text-muted); padding: 8px 0;">Ingresa el precio por persona y la cantidad de personas</span>';
@@ -2304,13 +2323,25 @@
                 precio_total_tren: 0
             };
 
-            // Si es vistadome, obtener configuración adicional
-            if (tipoTren === 'vistadome') {
+            // Si es turistico, obtener configuración adicional (incluye vistadome)
+            if (tipoTren === 'turistico' || tipoTren === 'vistadome') {
                 config.horario_ida_tren = document.getElementById('horarioIdaTren')?.value || '';
                 config.horario_retorno_tren = document.getElementById('horarioRetornoTren')?.value || '';
                 config.personas_tren = document.getElementById('personasTren')?.value || '';
                 config.precio_por_persona_tren = document.getElementById('precioPorPersonaTren')?.value || '';
-                config.precio_total_tren = calcularPrecioTotalTren();
+                
+                // CORRECCIÓN: Calcular correctamente el precio total del tren
+                const precioPorPersonaTren = parseFloat(config.precio_por_persona_tren) || 0;
+                const personasTrenTexto = config.personas_tren || '';
+                const numeroPersonas = extraerNumeroPersonas(personasTrenTexto);
+                const precioTrenTotal = precioPorPersonaTren * numeroPersonas;
+                
+                config.precio_total_tren = precioTrenTotal;
+                
+                console.log('🚂 Cálculo del tren turístico:');
+                console.log(`   - Precio por persona: USD ${precioPorPersonaTren}`);
+                console.log(`   - Número de personas: ${numeroPersonas}`);
+                console.log(`   - TOTAL CALCULADO: USD ${precioTrenTotal}`);
             }
 
             return config;
