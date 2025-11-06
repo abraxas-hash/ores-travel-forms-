@@ -2323,8 +2323,8 @@
                 precio_total_tren: 0
             };
 
-            // Si es turistico, obtener configuración adicional (incluye vistadome)
-            if (tipoTren === 'turistico' || tipoTren === 'vistadome') {
+            // Si es tren turístico (vistadome), obtener configuración adicional
+            if (tipoTren === 'vistadome') {
                 config.horario_ida_tren = document.getElementById('horarioIdaTren')?.value || '';
                 config.horario_retorno_tren = document.getElementById('horarioRetornoTren')?.value || '';
                 config.personas_tren = document.getElementById('personasTren')?.value || '';
