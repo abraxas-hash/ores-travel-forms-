@@ -1812,13 +1812,22 @@
             const numeroPersonas = document.getElementById('numeroPersonas')?.value;
             
             if (modalidad) {
-                document.getElementById('modalidad_precio_hidden').value = modalidad;
+                const modalidadHidden = document.getElementById('modalidadPrecio');
+                if (modalidadHidden) {
+                    modalidadHidden.value = modalidad;
+                }
             }
             if (precioPorPersona) {
-                document.getElementById('precio_por_persona_paquete_hidden').value = precioPorPersona;
+                const precioHidden = document.getElementById('precio_por_persona_paquete_hidden');
+                if (precioHidden) {
+                    precioHidden.value = precioPorPersona;
+                }
             }
             if (numeroPersonas) {
-                document.getElementById('numero_personas_hidden').value = numeroPersonas;
+                const numeroHidden = document.getElementById('numero_personas_hidden');
+                if (numeroHidden) {
+                    numeroHidden.value = numeroPersonas;
+                }
             }
         }
 
