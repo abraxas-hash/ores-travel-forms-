@@ -1670,6 +1670,7 @@
             const totalTrenElement = document.getElementById('totalTrenCalculado');
             const calculoDetalleElement = document.getElementById('calculoDetalleTren');
 
+            // ✅ MEJORADO: Leer valores directamente de los campos
             const precioPorPersona = parseFloat(precioPorPersonaInput?.value) || 0;
 
             // Extraer número de personas del texto (buscar números)
@@ -1678,6 +1679,11 @@
 
             const total = precioPorPersona * numeroPersonas;
 
+            console.log('🔄 CALCULANDO TREN - Valores directos:');
+            console.log(`   - Precio por persona: USD ${precioPorPersona}`);
+            console.log(`   - Número de personas: ${numeroPersonas}`);
+            console.log(`   - Total calculado: USD ${total}`);
+
             if (precioPorPersona > 0 && numeroPersonas > 0) {
                 // Mostrar el total calculado
                 totalTrenElement.innerHTML = `<span>USD ${total.toFixed(2)}</span>`;
@@ -1685,28 +1691,93 @@
                 // Mostrar el detalle del cálculo
                 calculoDetalleElement.textContent = `usd. ${precioPorPersona.toFixed(2)} × ${numeroPersonas} personas = USD ${total.toFixed(2)}`;
                 
-                // CORRECCIÓN: Actualizar configuración del tren para que webhook reciba datos correctos
-                const configTren = obtenerConfiguracionTransporte();
-                if (configTren && configTren.precio_total_tren !== total) {
-                    console.log('🚂 Actualizando configuración del tren con nuevo cálculo:');
-                    console.log(`   - Total anterior: ${configTren.precio_total_tren}`);
-                    console.log(`   - Total nuevo: ${total}`);
-                    
-                    // Forzar recálculo de la configuración
-                    const nuevoConfigTren = {
-                        ...configTren,
-                        precio_total_tren: total
-                    };
-                    
-                    // Actualizar el config global si existe
-                    if (typeof configTrenGlobal !== 'undefined') {
-                        configTrenGlobal.precio_total_tren = total;
-                    }
-                }
+                // ✅ MEJORADO: Actualizar directamente los campos ocultos para webhook
+                actualizarCamposOcultosTren(numeroPersonas, precioPorPersona, total);
+                
+                // Actualizar información visual del tren
+                actualizarInformacionVisualTren(numeroPersonas, precioPorPersona, total);
+                
             } else {
                 // Mostrar mensaje placeholder
                 totalTrenElement.innerHTML = '<span style="font-size: 1.2rem; font-weight: 400; color: var(--text-muted); padding: 8px 0;">Ingresa el precio por persona y la cantidad de personas</span>';
                 calculoDetalleElement.textContent = '';
+            }
+        }
+
+        /**
+         * ✅ NUEVA FUNCIÓN: Sincronizar campos ocultos del tren para webhook
+         */
+        function actualizarCamposOcultosTren(numeroPersonas, precioPorPersona, total) {
+            // Crear o actualizar campo oculto para personas del tren
+            let campoPersonasOculto = document.getElementById('personas_tren_hidden');
+            if (!campoPersonasOculto) {
+                campoPersonasOculto = document.createElement('input');
+                campoPersonasOculto.type = 'hidden';
+                campoPersonasOculto.id = 'personas_tren_hidden';
+                campoPersonasOculto.name = 'personas_tren';
+                document.body.appendChild(campoPersonasOculto);
+            }
+            campoPersonasOculto.value = numeroPersonas.toString();
+
+            // Crear o actualizar campo oculto para precio por persona del tren
+            let campoPrecioOculto = document.getElementById('precio_por_persona_tren_hidden');
+            if (!campoPrecioOculto) {
+                campoPrecioOculto = document.createElement('input');
+                campoPrecioOculto.type = 'hidden';
+                campoPrecioOculto.id = 'precio_por_persona_tren_hidden';
+                campoPrecioOculto.name = 'precio_por_persona_tren';
+                document.body.appendChild(campoPrecioOculto);
+            }
+            campoPrecioOculto.value = precioPorPersona.toString();
+
+            // Crear o actualizar campo oculto para total del tren
+            let campoTotalOculto = document.getElementById('precio_total_tren_hidden');
+            if (!campoTotalOculto) {
+                campoTotalOculto = document.createElement('input');
+                campoTotalOculto.type = 'hidden';
+                campoTotalOculto.id = 'precio_total_tren_hidden';
+                campoTotalOculto.name = 'precio_total_tren';
+                document.body.appendChild(campoTotalOculto);
+            }
+            campoTotalOculto.value = total.toString();
+
+            console.log('🔗 SINCRONIZACIÓN TREN - Campos ocultos actualizados:');
+            console.log(`   - personas_tren_hidden: ${numeroPersonas}`);
+            console.log(`   - precio_por_persona_tren_hidden: ${precioPorPersona}`);
+            console.log(`   - precio_total_tren_hidden: ${total}`);
+        }
+
+        /**
+         * ✅ NUEVA FUNCIÓN: Actualizar información visual del tren
+         */
+        function actualizarInformacionVisualTren(numeroPersonas, precioPorPersona, total) {
+            // Buscar si existe un contenedor de información del tren
+            let infoTrenContainer = document.getElementById('informacionTrenContainer');
+            
+            if (infoTrenContainer) {
+                infoTrenContainer.innerHTML = `
+                    <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px; margin-top: 16px;">
+                        <h4 style="color: var(--text-primary); margin: 0 0 12px 0; font-size: 1.1rem;">INFORMACIÓN DEL TREN</h4>
+                        <div style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6;">
+                            <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                                <span>N° PERSONAS:</span>
+                                <span style="font-weight: 600; color: var(--text-primary);">${numeroPersonas}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                                <span>PRECIO:</span>
+                                <span style="font-weight: 600; color: var(--text-primary);">USD ${precioPorPersona.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                                <span>TOTAL:</span>
+                                <span style="font-weight: 800; color: var(--gold);">${total.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                                <span>TIPO:</span>
+                                <span style="font-weight: 600; color: var(--text-primary);">Turistico</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
         }
 
@@ -2323,25 +2394,39 @@
                 precio_total_tren: 0
             };
 
-            // Si es tren turístico (vistadome), obtener configuración adicional
+            // Si es tren turístico (vistadome), obtener configuración sincronizada
             if (tipoTren === 'vistadome') {
+                // Usar campos ocultos sincronizados en lugar de leer directamente del DOM
                 config.horario_ida_tren = document.getElementById('horarioIdaTren')?.value || '';
                 config.horario_retorno_tren = document.getElementById('horarioRetornoTren')?.value || '';
-                config.personas_tren = document.getElementById('personasTren')?.value || '';
-                config.precio_por_persona_tren = document.getElementById('precioPorPersonaTren')?.value || '';
                 
-                // CORRECCIÓN: Calcular correctamente el precio total del tren
-                const precioPorPersonaTren = parseFloat(config.precio_por_persona_tren) || 0;
-                const personasTrenTexto = config.personas_tren || '';
-                const numeroPersonas = extraerNumeroPersonas(personasTrenTexto);
-                const precioTrenTotal = precioPorPersonaTren * numeroPersonas;
+                // ✅ CORRECCIÓN v4.12: Usar campos ocultos sincronizados
+                config.personas_tren = document.getElementById('personas_tren_hidden')?.value || document.getElementById('personasTren')?.value || '';
+                config.precio_por_persona_tren = document.getElementById('precio_por_persona_tren_hidden')?.value || document.getElementById('precioPorPersonaTren')?.value || '';
+                config.precio_total_tren = parseFloat(document.getElementById('precio_total_tren_hidden')?.value) || 0;
                 
-                config.precio_total_tren = precioTrenTotal;
+                console.log('🚂 Cálculo del tren turístico (SINCRONIZADO):');
+                console.log(`   - personas_tren (campo oculto): ${config.personas_tren}`);
+                console.log(`   - precio_por_persona_tren (campo oculto): ${config.precio_por_persona_tren}`);
+                console.log(`   - precio_total_tren (campo oculto): ${config.precio_total_tren}`);
                 
-                console.log('🚂 Cálculo del tren turístico:');
-                console.log(`   - Precio por persona: USD ${precioPorPersonaTren}`);
-                console.log(`   - Número de personas: ${numeroPersonas}`);
-                console.log(`   - TOTAL CALCULADO: USD ${precioTrenTotal}`);
+                // Verificar si los campos ocultos están actualizados
+                if (config.personas_tren === '' || config.precio_por_persona_tren === '') {
+                    console.log('⚠️  Campos ocultos vacíos, calculando desde valores directos...');
+                    // Fallback: calcular desde valores directos del DOM
+                    const precioDirecto = parseFloat(document.getElementById('precioPorPersonaTren')?.value) || 0;
+                    const personasDirecto = document.getElementById('personasTren')?.value || '';
+                    const numeroPersonas = extraerNumeroPersonas(personasDirecto);
+                    const totalDirecto = precioDirecto * numeroPersonas;
+                    
+                    config.personas_tren = personasDirecto;
+                    config.precio_por_persona_tren = precioDirecto.toString();
+                    config.precio_total_tren = totalDirecto;
+                    
+                    console.log(`   - FALLBACK - Precio directo: USD ${precioDirecto}`);
+                    console.log(`   - FALLBACK - Personas directo: "${personasDirecto}"`);
+                    console.log(`   - FALLBACK - Total directo: USD ${totalDirecto}`);
+                }
             }
 
             return config;
