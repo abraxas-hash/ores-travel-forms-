@@ -2025,13 +2025,13 @@
                         localStorage.setItem('ores_cotizaciones', JSON.stringify(cotizaciones));
                         console.log('✅ Cotización guardada en localStorage:', formData);
                         
-                        // SINCRONIZACIÓN DE GOOGLE SHEETS DESHABILITADA TEMPORALMENTE
+                        // SINCRONIZACIÓN CON GOOGLE SHEETS HABILITADA
                         // Sincronizar con Google Sheets en segundo plano
-                        // enviarAGoogleSheets(cotizacionParaGuardar).then(() => {
-                        //     console.log('✅ Cotización sincronizada con Google Sheets');
-                        // }).catch((error) => {
-                        //     console.warn('⚠️ No se pudo sincronizar con Google Sheets:', error);
-                        // });
+                        enviarAGoogleSheets(cotizacionParaGuardar).then(() => {
+                            console.log('✅ Cotización sincronizada con Google Sheets');
+                        }).catch((error) => {
+                            console.warn('⚠️ No se pudo sincronizar con Google Sheets:', error);
+                        });
                         
                     } catch (error) {
                         console.error('❌ Error al guardar:', error);
@@ -2858,17 +2858,17 @@
                 console.error('❌ No se encontró el formulario tourPersonalizadoForm');
             }
             
-            // DIAGNÓSTICO DESHABILITADO TEMPORALMENTE PARA SOLUCIONAR PROBLEMA
+            // DIAGNÓSTICO HABILITADO TEMPORALMENTE
             // Diagnosticar configuración de Google Sheets
-            // diagnosticarGoogleSheets();
+            diagnosticarGoogleSheets();
             
-            // Probar conectividad (solo en modo debug) - DESHABILITADO
-            // setTimeout(async () => {
-            //     const resultado = await probarConectividadGoogleSheets();
-            //     if (GOOGLE_SHEETS_CONFIG.debug) {
-            //         console.log('🧪 Test de conectividad Google Sheets:', resultado);
-            //     }
-            // }, 2000);
+            // Probar conectividad (solo en modo debug) - HABILITADO TEMPORALMENTE
+            setTimeout(async () => {
+                const resultado = await probarConectividadGoogleSheets();
+                if (GOOGLE_SHEETS_CONFIG.debug) {
+                    console.log('🧪 Test de conectividad Google Sheets:', resultado);
+                }
+            }, 2000);
         });
     </script>
 </body>
