@@ -1586,32 +1586,70 @@
         }
 
         /**
-         * ✅ NUEVA FUNCIÓN: Actualizar información visual del tren
+         * ✅ FUNCIÓN ACTUALIZADA: Actualizar información visual del tren
+         * @param {string} tipoTren - Tipo de tren ('expedition' o 'vistadome')
+         * @param {number} numeroPersonas - Número de personas
+         * @param {number} precioPorPersona - Precio por persona (solo para tren turístico)
+         * @param {number} total - Precio total (solo para tren turístico)
+         * @param {string} horarioIda - Horario de ida (solo para tren turístico)
+         * @param {string} horarioRetorno - Horario de retorno (solo para tren turístico)
          */
-        function actualizarInformacionVisualTren(numeroPersonas, precioPorPersona, total) {
+        function actualizarInformacionVisualTren(tipoTren, numeroPersonas, precioPorPersona, total, horarioIda = '', horarioRetorno = '') {
             // Buscar si existe un contenedor de información del tren
             let infoTrenContainer = document.getElementById('informacionTrenContainer');
             
             if (infoTrenContainer) {
+                // Determinar el tipo de tren y valores según el tipo
+                let tipoTrenLabel = '';
+                let precioTexto = '';
+                let totalTexto = '';
+                let horarioIdaTexto = '';
+                let horarioRetornoTexto = '';
+                
+                if (tipoTren === 'expedition' || tipoTren === 'local') {
+                    // Tren local (Expedition)
+                    tipoTrenLabel = 'tren local';
+                    precioTexto = 'incluye programa';
+                    totalTexto = 'incluye programa';
+                    horarioIdaTexto = 'Por definir';
+                    horarioRetornoTexto = 'Por definir';
+                } else {
+                    // Tren turístico (Vistadome)
+                    tipoTrenLabel = 'Turístico';
+                    precioTexto = `USD ${precioPorPersona.toFixed(2)}`;
+                    totalTexto = total.toFixed(2);
+                    horarioIdaTexto = horarioIda || 'Por definir';
+                    horarioRetornoTexto = horarioRetorno || 'Por definir';
+                }
+                
                 infoTrenContainer.innerHTML = `
                     <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px; margin-top: 16px;">
                         <h4 style="color: var(--text-primary); margin: 0 0 12px 0; font-size: 1.1rem;">INFORMACIÓN DEL TREN</h4>
-                        <div style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6;">
+                        <h5 style="color: var(--text-secondary); margin: 0 0 12px 0; font-size: 0.9rem; font-weight: 500;">DETALLES DEL TREN</h5>
+                        <div style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8;">
                             <div style="display: flex; justify-content: space-between; padding: 4px 0;">
-                                <span>N° PERSONAS:</span>
+                                <span><strong>N° PERSONAS</strong></span>
                                 <span style="font-weight: 600; color: var(--text-primary);">${numeroPersonas}</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; padding: 4px 0;">
-                                <span>PRECIO:</span>
-                                <span style="font-weight: 600; color: var(--text-primary);">USD ${precioPorPersona.toFixed(2)}</span>
+                                <span><strong>PRECIO</strong></span>
+                                <span style="font-weight: 600; color: var(--text-primary);">${precioTexto}</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; padding: 4px 0;">
-                                <span>TOTAL:</span>
-                                <span style="font-weight: 800; color: var(--gold);">${total.toFixed(2)}</span>
+                                <span><strong>HORA IDA</strong></span>
+                                <span style="font-weight: 600; color: var(--text-primary);">${horarioIdaTexto}</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; padding: 4px 0;">
-                                <span>TIPO:</span>
-                                <span style="font-weight: 600; color: var(--text-primary);">Turistico</span>
+                                <span><strong>HORA RETORNO</strong></span>
+                                <span style="font-weight: 600; color: var(--text-primary);">${horarioRetornoTexto}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                                <span><strong>TOTAL</strong></span>
+                                <span style="font-weight: 800; color: var(--gold);">${totalTexto}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                                <span><strong>TIPO</strong></span>
+                                <span style="font-weight: 600; color: var(--text-primary);">${tipoTrenLabel}</span>
                             </div>
                         </div>
                     </div>
@@ -2271,6 +2309,22 @@
                     console.log(`   - FALLBACK - Total directo: USD ${totalDirecto}`);
                 }
             }
+
+            // ✅ NUEVA FUNCIONALIDAD: Actualizar información visual del tren
+            // Extraer número de personas para la función visual
+            const numeroPersonas = extraerNumeroPersonas(config.personas_tren) || 2;
+            const precioPorPersona = parseFloat(config.precio_por_persona_tren) || 0;
+            const total = config.precio_total_tren || 0;
+            
+            // Llamar a la función de actualización visual
+            actualizarInformacionVisualTren(
+                config.tipo_tren, 
+                numeroPersonas, 
+                precioPorPersona, 
+                total, 
+                config.horario_ida_tren, 
+                config.horario_retorno_tren
+            );
 
             return config;
         }
