@@ -2261,10 +2261,46 @@
         }
         
         /**
+         * Normalizar tipo de tren
+         */
+        function normalizarTipoTren(tipoTrenOriginal) {
+            if (!tipoTrenOriginal) return 'expedition';
+            
+            // Mapeo de valores antiguos a nuevos valores normalizados
+            const mapeoTipos = {
+                'vistadome': 'turistico',
+                'vista dome': 'turistico', 
+                'vista-dome': 'turistico',
+                'turistico': 'turistico',
+                'turístico': 'turistico',
+                'expedition': 'expedition',
+                'tren local': 'expedition',
+                'local': 'expedition'
+            };
+            
+            // Normalizar a minúsculas para comparar
+            const tipoNormalizado = tipoTrenOriginal.toLowerCase().trim();
+            
+            // Buscar coincidencia exacta
+            if (mapeoTipos[tipoNormalizado]) {
+                console.log(`✅ Tipo tren normalizado: "${tipoTrenOriginal}" → "${mapeoTipos[tipoNormalizado]}"`);
+                return mapeoTipos[tipoNormalizado];
+            }
+            
+            // Si no encuentra coincidencia, usar el valor original pero formateado
+            const tipoFormateado = tipoNormalizado === 'turistico' || tipoNormalizado === 'turístico' ? 'turistico' : 
+                                  tipoNormalizado === 'expedition' ? 'expedition' : tipoTrenOriginal;
+            
+            console.log(`⚠️ Tipo tren sin mapeo, usando original: "${tipoTrenOriginal}" → "${tipoFormateado}"`);
+            return tipoFormateado;
+        }
+
+        /**
          * Obtener configuración de transporte/tren
          */
         function obtenerConfiguracionTransporte() {
-            const tipoTren = document.getElementById('tipo_tren')?.value || 'expedition';
+            const tipoTrenOriginal = document.getElementById('tipo_tren')?.value || 'expedition';
+            const tipoTren = normalizarTipoTren(tipoTrenOriginal);
 
             const config = {
                 tipo_tren: tipoTren,
@@ -2275,8 +2311,8 @@
                 precio_total_tren: 0
             };
 
-            // Si es tren turístico (vistadome), obtener configuración sincronizada
-            if (tipoTren === 'vistadome') {
+            // Si es tren turístico (turistico), obtener configuración sincronizada
+            if (tipoTren === 'turistico') {
                 // Usar campos ocultos sincronizados en lugar de leer directamente del DOM
                 config.horario_ida_tren = document.getElementById('horarioIdaTren')?.value || '';
                 config.horario_retorno_tren = document.getElementById('horarioRetornoTren')?.value || '';
@@ -2326,6 +2362,9 @@
                 config.horario_retorno_tren
             );
 
+            // Agregar tipo_tren_normalizado para el PDF
+            config.tipo_tren_normalizado = tipoTren === 'expedition' ? 'tren local' : 'turístico';
+            
             return config;
         }
         
