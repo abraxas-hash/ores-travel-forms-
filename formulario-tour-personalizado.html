@@ -2849,6 +2849,15 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Formulario Tour Personalizado v4.13 - Cargando...');
             
+            // Conectar el evento submit del formulario
+            const form = document.getElementById('tourPersonalizadoForm');
+            if (form) {
+                form.addEventListener('submit', enviarCotizacion);
+                console.log('✅ Event listener de formulario conectado');
+            } else {
+                console.error('❌ No se encontró el formulario tourPersonalizadoForm');
+            }
+            
             // DIAGNÓSTICO DESHABILITADO TEMPORALMENTE PARA SOLUCIONAR PROBLEMA
             // Diagnosticar configuración de Google Sheets
             // diagnosticarGoogleSheets();
