@@ -2023,14 +2023,15 @@
                         
                         // Guardar en localStorage
                         localStorage.setItem('ores_cotizaciones', JSON.stringify(cotizaciones));
-                        console.log('✅ Cotización guardada en localStorage');
+                        console.log('✅ Cotización guardada en localStorage:', formData);
                         
+                        // SINCRONIZACIÓN DE GOOGLE SHEETS DESHABILITADA TEMPORALMENTE
                         // Sincronizar con Google Sheets en segundo plano
-                        enviarAGoogleSheets(cotizacionParaGuardar).then(() => {
-                            console.log('✅ Cotización sincronizada con Google Sheets');
-                        }).catch((error) => {
-                            console.warn('⚠️ No se pudo sincronizar con Google Sheets:', error);
-                        });
+                        // enviarAGoogleSheets(cotizacionParaGuardar).then(() => {
+                        //     console.log('✅ Cotización sincronizada con Google Sheets');
+                        // }).catch((error) => {
+                        //     console.warn('⚠️ No se pudo sincronizar con Google Sheets:', error);
+                        // });
                         
                     } catch (error) {
                         console.error('❌ Error al guardar:', error);
@@ -2740,35 +2741,44 @@
                     return null;
                 }
                 
+                // Verificar que cotizacion sea un objeto válido
+                if (!cotizacion || typeof cotizacion !== 'object') {
+                    if (GOOGLE_SHEETS_CONFIG.debug) {
+                        console.warn('⚠️ Google Sheets: Datos de cotización inválidos, omitiendo sincronización');
+                    }
+                    return null;
+                }
+                
                 if (GOOGLE_SHEETS_CONFIG.debug) {
                     console.log('📤 Enviando cotización a Google Sheets...');
                 }
                 
                 // Preparar datos para Google Sheets (estructura compatible con programas fijos)
                 const datosParaSheets = {
-                    id: cotizacion.id,
-                    fecha_creacion: cotizacion.timestamp,
-                    nombre_cliente: cotizacion.nombre_cliente || '',
-                    email: cotizacion.email || '',
-                    telefono: cotizacion.telefono || '',
-                    programa: 'TOUR PERSONALIZADO', // Tipo específico
-                    fecha_tour: cotizacion.fecha_tour || '',
-                    num_adultos: cotizacion.numero_personas || '',
+                    // Campos básicos con valores por defecto seguros
+                    id: cotizacion?.id || `COT_${Date.now()}`,
+                    fecha_creacion: cotizacion?.timestamp || new Date().toISOString(),
+                    nombre_cliente: cotizacion?.nombre_cliente || cotizacion?.cliente || '',
+                    email: cotizacion?.email || '',
+                    telefono: cotizacion?.telefono || '',
+                    programa: cotizacion?.programa || 'TOUR PERSONALIZADO',
+                    fecha_tour: cotizacion?.fecha_tour || cotizacion?.fecha || '',
+                    num_adultos: cotizacion?.numero_personas || '',
                     num_ninos: '',
-                    hotel: cotizacion.hotel || '',
-                    tren: cotizacion.tipo_tren || '',
+                    hotel: cotizacion?.hotel || '',
+                    tren: cotizacion?.tipo_tren || '',
                     precio_tren: '',
-                    total: cotizacion.precio_total || '',
-                    pdf_url: cotizacion.pdf_url || '',
-                    tipo_cotizacion: 'PERSONALIZADO',
-                    personas: cotizacion.numero_personas || '',
+                    total: cotizacion?.precio_total || '',
+                    pdf_url: cotizacion?.pdf_url || '',
+                    tipo_cotizacion: cotizacion?.tipo_cotizacion || 'PERSONALIZADO',
+                    personas: cotizacion?.numero_personas || '',
                     
                     // Campos adicionales específicos del tour personalizado
-                    actividades: cotizacion.actividades_seleccionadas ? 
+                    actividades: (cotizacion?.actividades_seleccionadas && Array.isArray(cotizacion.actividades_seleccionadas)) ? 
                         cotizacion.actividades_seleccionadas.join(', ') : '',
-                    modalidad: cotizacion.modalidad_precios || 'PAQUETE_PRIVADO',
-                    adelanto: cotizacion.adelanto || '',
-                    observaciones: cotizacion.observaciones || '',
+                    modalidad: cotizacion?.modalidad_precios || 'PAQUETE_PRIVADO',
+                    adelanto: cotizacion?.adelanto || '',
+                    observaciones: cotizacion?.observaciones || '',
                     fecha_actualizacion: new Date().toISOString()
                 };
                 
@@ -2794,7 +2804,8 @@
                 if (GOOGLE_SHEETS_CONFIG.debug) {
                     console.error('❌ Error al enviar a Google Sheets:', error);
                 }
-                // No lanzar el error para no interrumpir el flujo principal
+                // Silenciar el error para no interrumpir el flujo principal
+                // El formulario debe continuar funcionando aunque Google Sheets falle
                 return false;
             }
         }
@@ -2831,24 +2842,24 @@
             }
         }
         
-        // ==========================================
-        // INICIALIZACIÓN AL CARGAR LA PÁGINA
+        // INICIALIZACIÓN AL CARGAR LA PÁGINA (DESHABILITADA TEMPORALMENTE)
         // ==========================================
         
         // Ejecutar diagnóstico al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Formulario Tour Personalizado v4.13 - Cargando...');
             
+            // DIAGNÓSTICO DESHABILITADO TEMPORALMENTE PARA SOLUCIONAR PROBLEMA
             // Diagnosticar configuración de Google Sheets
-            diagnosticarGoogleSheets();
+            // diagnosticarGoogleSheets();
             
-            // Probar conectividad (solo en modo debug)
-            setTimeout(async () => {
-                const resultado = await probarConectividadGoogleSheets();
-                if (GOOGLE_SHEETS_CONFIG.debug) {
-                    console.log('🧪 Test de conectividad Google Sheets:', resultado);
-                }
-            }, 2000);
+            // Probar conectividad (solo en modo debug) - DESHABILITADO
+            // setTimeout(async () => {
+            //     const resultado = await probarConectividadGoogleSheets();
+            //     if (GOOGLE_SHEETS_CONFIG.debug) {
+            //         console.log('🧪 Test de conectividad Google Sheets:', resultado);
+            //     }
+            // }, 2000);
         });
     </script>
 </body>
