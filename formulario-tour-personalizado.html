@@ -2273,9 +2273,9 @@
                 'vista-dome': 'turistico',
                 'turistico': 'turistico',
                 'turístico': 'turistico',
-                'expedition': 'expedition',
-                'tren local': 'expedition',
-                'local': 'expedition'
+                'expedition': 'tren local',
+                'tren local': 'tren local',
+                'local': 'tren local'
             };
             
             // Normalizar a minúsculas para comparar
@@ -2289,7 +2289,7 @@
             
             // Si no encuentra coincidencia, usar el valor original pero formateado
             const tipoFormateado = tipoNormalizado === 'turistico' || tipoNormalizado === 'turístico' ? 'turistico' : 
-                                  tipoNormalizado === 'expedition' ? 'expedition' : tipoTrenOriginal;
+                                  tipoNormalizado === 'expedition' ? 'tren local' : tipoTrenOriginal;
             
             console.log(`⚠️ Tipo tren sin mapeo, usando original: "${tipoTrenOriginal}" → "${tipoFormateado}"`);
             return tipoFormateado;
@@ -2363,7 +2363,7 @@
             );
 
             // Agregar tipo_tren_normalizado para el PDF
-            config.tipo_tren_normalizado = tipoTren === 'expedition' ? 'tren local' : 'turístico';
+            config.tipo_tren_normalizado = tipoTren === 'tren local' ? 'tren local' : 'turístico';
             
             return config;
         }
