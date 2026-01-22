@@ -1167,8 +1167,20 @@
         }
         
         function descargarPDF(downloadUrl) {
-            // Abrir el PDF en nueva pestaña
-            window.open(downloadUrl, '_blank');
+            let urlFinal = downloadUrl;
+            
+            // 🔧 CORRECCIÓN: Detectar URLs de Google Docs y convertir a PDF
+            if (urlFinal.includes('docs.google.com/document/') && !urlFinal.includes('export?format=pdf')) {
+                // Extraer el documentId de la URL de Google Docs
+                const documentId = urlFinal.match(/document\/d\/([a-zA-Z0-9-_]+)/)?.[1];
+                if (documentId) {
+                    urlFinal = `https://docs.google.com/document/d/${documentId}/export?format=pdf&usp=drivesdk`;
+                    console.log('📥 URL convertida a descarga directa de PDF');
+                }
+            }
+            
+            // Abrir la URL final
+            window.open(urlFinal, '_blank');
         }
         
         // ==========================================
@@ -1640,7 +1652,20 @@
         
         function descargarPDFTour(downloadUrl) {
             console.log('📥 Descargando PDF del tour');
-            window.open(downloadUrl, '_blank');
+            
+            let urlFinal = downloadUrl;
+            
+            // 🔧 CORRECCIÓN: Detectar URLs de Google Docs y convertir a PDF
+            if (urlFinal.includes('docs.google.com/document/') && !urlFinal.includes('export?format=pdf')) {
+                // Extraer el documentId de la URL de Google Docs
+                const documentId = urlFinal.match(/document\/d\/([a-zA-Z0-9-_]+)/)?.[1];
+                if (documentId) {
+                    urlFinal = `https://docs.google.com/document/d/${documentId}/export?format=pdf&usp=drivesdk`;
+                    console.log('📥 URL convertida a descarga directa de PDF (calendario)');
+                }
+            }
+            
+            window.open(urlFinal, '_blank');
         }
         
         /**

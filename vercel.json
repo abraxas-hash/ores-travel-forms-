@@ -6,7 +6,7 @@
     }
   },
   "rewrites": [
-    { "source": "/", "destination": "/login.html" }, // Updated for main deployment
+    { "source": "/", "destination": "/login.html" },
     { "source": "/login", "destination": "/login.html" },
     { "source": "/dashboard", "destination": "/dashboard.html" },
     { "source": "/programas-fijos", "destination": "/formulario-programas-fijos.html" },

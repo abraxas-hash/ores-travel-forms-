@@ -265,7 +265,7 @@
         .form-input, .form-select {
             width: 100%;
             padding: 16px 20px;
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.25);
             border: 2px solid rgba(255, 255, 255, 0.1);
             border-radius: 14px;
             color: var(--text-primary);
@@ -276,7 +276,7 @@
         .form-input:focus, .form-select:focus {
             outline: none;
             border-color: var(--primary);
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.35);
         }
         
         .form-row {
@@ -303,14 +303,17 @@
             border-bottom: none;
         }
         
-        .transport-options {
+        /* ==========================================
+           OPCIONES DE TREN
+        ========================================== */
+        .tren-options {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 16px;
             margin-bottom: 20px;
         }
-        
-        .transport-option {
+
+        .tren-option {
             padding: 16px;
             background: rgba(255, 255, 255, 0.05);
             border: 2px solid rgba(255, 255, 255, 0.1);
@@ -319,29 +322,57 @@
             transition: all 0.3s ease;
             text-align: center;
         }
-        
-        .transport-option.selected {
-            background: rgba(194, 65, 12, 0.2);
+
+        .tren-option:hover {
+            background: rgba(255, 255, 255, 0.1);
             border-color: var(--primary);
         }
-        
-        .transport-icon {
+
+        .tren-option.active {
+            background: rgba(194, 65, 12, 0.2);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(194, 65, 12, 0.3);
+        }
+
+        .tren-icon {
             font-size: 2rem;
             margin-bottom: 8px;
             display: block;
         }
-        
-        .transport-config {
+
+        .tren-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .tren-price {
+            font-size: 0.9rem;
+            color: var(--gold);
+            font-weight: 500;
+        }
+
+        .tren-config {
             display: none;
             margin-top: 20px;
             padding: 20px;
             background: rgba(194, 65, 12, 0.1);
             border: 1px solid rgba(194, 65, 12, 0.3);
             border-radius: 14px;
+            animation: fadeInDown 0.4s ease-out;
         }
-        
-        .transport-config.show {
+
+        .tren-config.show {
             display: block;
+        }
+
+        .config-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .price-mode-options {
@@ -542,7 +573,7 @@
                 grid-template-columns: 1fr;
             }
             
-            .transport-options,
+            .tren-options,
             .price-mode-options {
                 grid-template-columns: 1fr;
             }
@@ -997,74 +1028,88 @@
                 
                 <div class="step-divider"></div>
                 
-                <!-- PASO 3: TRANSPORTE -->
+                <!-- PASO 3: TREN A MACHU PICCHU -->
                 <div class="step-section">
                     <div class="step-title">
                         <span>🚂</span>
-                        <span>PASO 3: TRANSPORTE (Detección automática)</span>
+                        <span>PASO 3: Tren a Machu Picchu</span>
                     </div>
-                    
-                    <div id="transporteDetectado" class="warning-message" style="display: none;">
-                        ⚠️ DETECTADO: Tu tour incluye actividades hacia Machu Picchu
+
+                    <div class="tren-options">
+                        <div class="tren-option" data-tren="expedition" onclick="seleccionarTren('expedition')">
+                            <span class="tren-icon">🚂</span>
+                            <div class="tren-title">TREN LOCAL</div>
+                            <div class="tren-price">(Incluye automáticamente)</div>
+                        </div>
+
+                        <div class="tren-option" data-tren="vistadome" onclick="seleccionarTren('vistadome')">
+                            <span class="tren-icon">🚅</span>
+                            <div class="tren-title">TREN TURÍSTICO</div>
+                            <div class="tren-price">(Requiere configuración)</div>
+                        </div>
                     </div>
-                    
-                    <div id="transporteNoDetectado" class="info-message" style="display: none;">
-                        📍 Tu tour actual no incluye visitas a Machu Picchu. Si agregas actividades como MAPI, VALLE+MAPI, etc., aparecerán las opciones de transporte.
-                        <br><br>
-                        <button type="button" onclick="mostrarTransporteManual()" class="btn-link">
-                            🚂 ¿Quieres configurar transporte manualmente?
-                        </button>
+
+                    <!-- Campo hidden para el tipo de tren seleccionado -->
+                    <input type="hidden" id="tipo_tren" name="tipo_tren" required>
+
+                    <!-- Mensaje informativo para Expedition -->
+                    <div id="expeditionInfo" class="info-message" style="display: none;">
+                        <p>✅ <strong>Tren Local (Expedition) seleccionado:</strong> Este tren se incluye automáticamente en tu programa sin costo adicional. <strong>En el PDF aparecerá como: "incluye (local)"</strong>. No se requiere ingresar precio.</p>
                     </div>
-                    
-                    <div id="transporteSection" style="display: none;">
-                        <div class="form-group">
-                            <label class="form-label">¿Qué tipo de tren prefieres? *</label>
-                            <div class="transport-options">
-                                <div class="transport-option" data-transport="local" onclick="seleccionarTransporte('local')">
-                                    <span class="transport-icon">🚂</span>
-                                    <div>TREN LOCAL</div>
-                                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
-                                        (Incluye automáticamente)
-                                    </div>
-                                </div>
-                                <div class="transport-option" data-transport="turistico" onclick="seleccionarTransporte('turistico')">
-                                    <span class="transport-icon">🚂</span>
-                                    <div>TREN TURÍSTICO</div>
-                                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
-                                        (Requiere configuración)
-                                    </div>
-                                </div>
+
+                    <!-- Configuración adicional para Vistadome -->
+                    <div id="trenTuristicoConfig" class="tren-config">
+                        <div class="config-title" style="font-weight: 700; color: var(--gold); margin-bottom: 16px;">
+                            <span>⚙️</span>
+                            <span>CONFIGURACIÓN TREN TURÍSTICO VISTADOME</span>
+                        </div>
+
+                        <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin-bottom: 16px; color: var(--text-secondary); font-size: 0.9rem;">
+                            ℹ️ Complete los siguientes datos para el tren turístico Vistadome
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="horarioIdaTren">🕐 HORARIO DE IDA *</label>
+                                <input type="text" id="horarioIdaTren" name="horario_ida_tren" class="form-input"
+                                       placeholder="Ej: 08:30 - Cusco a Aguas Calientes" oninput="calcularTotalTren()">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="horarioRetornoTren">🕐 HORARIO DE RETORNO *</label>
+                                <input type="text" id="horarioRetornoTren" name="horario_retorno_tren" class="form-input"
+                                       placeholder="Ej: 14:00 - Aguas Calientes a Cusco" oninput="calcularTotalTren()">
                             </div>
                         </div>
-                        
-                        <input type="hidden" id="tipoTransporte" name="tipo_transporte">
-                        
-                        <div id="transporteConfig" class="transport-config">
-                            <div style="font-weight: 600; margin-bottom: 16px; color: var(--primary);">
-                                ⚙️ CONFIGURACIÓN TREN TURÍSTICO
+
+                        <div class="form-group">
+                            <label class="form-label" for="personasTren">👥 PERSONAS EN TREN *</label>
+                            <input type="text" id="personasTren" name="personas_tren" class="form-input"
+                                   placeholder="Ej: 2 adultos, 1 niño" oninput="calcularTotalTren()">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="precioPorPersonaTren">💰 PRECIO POR PERSONA (USD) *</label>
+                            <input type="text" id="precioPorPersonaTren" name="precio_por_persona_tren" class="form-input"
+                                   placeholder="Ingresa el precio por persona en USD" oninput="calcularTotalTren()">
+                            <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px 16px; margin-top: 8px; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text-secondary);">
+                                <span style="font-size: 1.1rem;">💡</span>
+                                <span>El total se calculará automáticamente según el número de personas</span>
                             </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label" for="personasTren">Personas en tren *</label>
-                                    <input type="text" id="personasTren" name="personas_tren" class="form-input" 
-                                           placeholder="Ej: 2 adultos, 1 niño">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="horaTren">Hora del tren *</label>
-                                    <input type="time" id="horaTren" name="hora_tren" class="form-input">
-                                </div>
+                        </div>
+
+                        <!-- Recuadro destacado del total -->
+                        <div style="background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%); border: 2px solid var(--gold); border-radius: 16px; padding: 24px; margin-top: 24px; position: relative;">
+                            <div style="display: flex; align-items: center; gap: 8px; color: var(--gold); font-weight: 700; text-transform: uppercase; font-size: 1rem; margin-bottom: 8px; letter-spacing: 1px;">
+                                <span>💲</span>
+                                <span>TOTAL DEL TREN TURÍSTICO:</span>
                             </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label" for="fechaTren">Fecha del viaje en tren *</label>
-                                <input type="date" id="fechaTren" name="fecha_tren" class="form-input">
+
+                            <div id="totalTrenCalculado" style="font-size: 2.5rem; font-weight: 800; color: var(--text-primary); text-align: right; line-height: 1; margin-bottom: 8px;">
+                                <span style="font-size: 1.2rem; font-weight: 400; color: var(--text-muted); padding: 8px 0;">Ingresa el precio por persona y la cantidad de personas</span>
                             </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label" for="precioTotalTren">Precio total en dólares (USD) *</label>
-                                <input type="text" id="precioTotalTren" name="precio_total_tren" class="form-input" 
-                                       placeholder="Ej: $500.00 USD">
+
+                            <div id="calculoDetalleTren" style="text-align: right; color: var(--text-secondary); font-size: 0.9rem; font-style: italic; margin-top: 4px;">
+                                <!-- Se mostrará el detalle del cálculo aquí -->
                             </div>
                         </div>
                     </div>
@@ -1130,15 +1175,38 @@
                     </div>
                     
                     <input type="hidden" id="modalidadPrecio" name="modalidad_precio">
+                    <input type="hidden" id="precio_por_persona_paquete_hidden" name="precio_por_persona_paquete">
+                    <input type="hidden" id="numero_personas_hidden" name="numero_personas">
+                    <input type="hidden" id="precio_total_hidden" name="precio_total">
                     
                     <div id="precioPaqueteConfig" class="price-config">
                         <div style="font-weight: 600; margin-bottom: 16px; color: var(--primary);">
                             💎 PRECIO PAQUETE PRIVADO
                         </div>
                         <div class="form-group">
-                            <label class="form-label" for="precioTotal">Precio total del tour (S/.) *</label>
-                            <input type="number" id="precioTotal" name="precio_total" class="form-input" 
-                                   placeholder="Ingresa el precio total en soles" step="0.01" min="0">
+                            <label class="form-label" for="precioPorPersonaPaquete">💰 PRECIO POR PERSONA (S/.) *</label>
+                            <input type="number" id="precioPorPersonaPaquete" name="precio_por_persona_paquete" class="form-input"
+                                   placeholder="Ingresa el precio por persona en soles" step="0.01" min="0" oninput="calcularTotalPaquete()">
+                            <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px 16px; margin-top: 8px; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text-secondary);">
+                                <span style="font-size: 1.1rem;">💡</span>
+                                <span>El total se calculará automáticamente según el número de personas ingresado en el PASO 6</span>
+                            </div>
+                        </div>
+
+                        <!-- Recuadro destacado del total -->
+                        <div style="background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%); border: 2px solid var(--gold); border-radius: 16px; padding: 24px; margin-top: 24px; position: relative;">
+                            <div style="display: flex; align-items: center; gap: 8px; color: var(--gold); font-weight: 700; text-transform: uppercase; font-size: 1rem; margin-bottom: 8px; letter-spacing: 1px;">
+                                <span>💲</span>
+                                <span>PRECIO TOTAL DEL PAQUETE:</span>
+                            </div>
+
+                            <div id="totalPaqueteCalculado" style="font-size: 2.5rem; font-weight: 800; color: var(--text-primary); text-align: right; line-height: 1; margin-bottom: 8px;">
+                                <span style="font-size: 1.2rem; font-weight: 400; color: var(--text-muted); padding: 8px 0;">Ingresa el precio por persona y el número de personas</span>
+                            </div>
+
+                            <div id="calculoDetallePaquete" style="text-align: right; color: var(--text-secondary); font-size: 0.9rem; font-style: italic; margin-top: 4px;">
+                                <!-- Se mostrará el detalle del cálculo aquí -->
+                            </div>
                         </div>
                     </div>
                     
@@ -1146,9 +1214,25 @@
                         <div style="font-weight: 600; margin-bottom: 16px; color: var(--primary);">
                             🧮 PRECIOS INDIVIDUALES
                         </div>
+                        <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin-bottom: 16px; color: var(--text-secondary); font-size: 0.9rem;">
+                            💡 Ingresa el precio por persona para cada actividad. El total se calculará automáticamente.
+                        </div>
                         <div id="preciosIndividuales" class="individual-prices"></div>
-                        <div id="subtotalIndividual" class="total-calculation" style="display: none;">
-                            💰 SUBTOTAL: S/. <span id="subtotalAmount">0.00</span>
+
+                        <!-- Recuadro destacado del total -->
+                        <div style="background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%); border: 2px solid var(--gold); border-radius: 16px; padding: 24px; margin-top: 24px; position: relative;">
+                            <div style="display: flex; align-items: center; gap: 8px; color: var(--gold); font-weight: 700; text-transform: uppercase; font-size: 1rem; margin-bottom: 8px; letter-spacing: 1px;">
+                                <span>💲</span>
+                                <span>PRECIO TOTAL:</span>
+                            </div>
+
+                            <div id="totalIndividualCalculado" style="font-size: 2.5rem; font-weight: 800; color: var(--text-primary); text-align: right; line-height: 1; margin-bottom: 8px;">
+                                <span style="font-size: 1.2rem; font-weight: 400; color: var(--text-muted); padding: 8px 0;">Ingresa los precios y el número de personas</span>
+                            </div>
+
+                            <div id="calculoDetalleIndividual" style="text-align: right; color: var(--text-secondary); font-size: 0.9rem; font-style: italic; margin-top: 4px;">
+                                <!-- Se mostrará el detalle del cálculo aquí -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1162,42 +1246,71 @@
                         <span>PASO 6: DATOS DEL CLIENTE</span>
                     </div>
                     
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="nombreCliente">👤 Nombre completo *</label>
+                            <input type="text" id="nombreCliente" name="nombre_cliente" class="form-input" 
+                                   placeholder="Ej: Juan Pérez García" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="telefono">📱 Teléfono *</label>
+                            <input type="tel" id="telefono" name="telefono" class="form-input" 
+                                   placeholder="Ej: +51 987 654 321" required>
+                        </div>
+                    </div>
+                    
                     <div class="form-group">
-                        <label class="form-label" for="nombreCliente">Nombre completo del cliente *</label>
-                        <input type="text" id="nombreCliente" name="nombre_cliente" class="form-input" 
-                               placeholder="Nombre completo del cliente" required>
+                        <label class="form-label" for="numeroPersonas">👥 Número de personas *</label>
+                        <input type="text" id="numeroPersonas" name="numero_personas" class="form-input" 
+                               placeholder="Ej: 2 adultos, 1 niño" required oninput="recalcularPrecios()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="observaciones">📝 Observaciones adicionales</label>
+                        <textarea id="observaciones" name="observaciones" class="form-input" 
+                                  placeholder="Ej: Alergias, preferencias dietéticas, celebraciones especiales, etc."
+                                  rows="3" style="resize: vertical; min-height: 80px;"></textarea>
+                    </div>
+                </div>
+                
+                <div class="step-divider"></div>
+                
+                <!-- PASO 7: ADELANTO Y ASESOR -->
+                <div class="step-section">
+                    <div class="step-title">
+                        <span>💳</span>
+                        <span>PASO 7: ADELANTO Y ASESOR</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="adelantoPagado">💰 Adelanto pagado (S/.)</label>
+                        <input type="number" id="adelantoPagado" name="adelanto_pagado" class="form-input" 
+                               placeholder="Ingresa el monto del adelanto en soles" step="0.01" min="0">
+                        <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px 16px; margin-top: 8px; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text-secondary);">
+                            <span style="font-size: 1.1rem;">💡</span>
+                            <span>Campo opcional - Deja en 0 si aún no se ha pagado adelanto</span>
+                        </div>
                     </div>
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label" for="telefono">Teléfono *</label>
-                            <input type="tel" id="telefono" name="telefono" class="form-input" 
-                                   placeholder="+51 999 999 999" required>
+                            <label class="form-label" for="nombreAsesor">👨‍💼 Nombre del asesor</label>
+                            <input type="text" id="nombreAsesor" name="nombre_asesor" class="form-input" 
+                                   placeholder="Ej: María Rodríguez" >
                         </div>
+                        
                         <div class="form-group">
-                            <label class="form-label" for="numeroPersonas">Número de personas *</label>
-                            <input type="text" id="numeroPersonas" name="numero_personas" class="form-input" 
-                                   placeholder="Ej: 2 adultos, 1 niño" required>
+                            <label class="form-label" for="emailAsesor">📧 Email del asesor</label>
+                            <input type="email" id="emailAsesor" name="email_asesor" class="form-input" 
+                                   placeholder="Ej: maria@orestravel.com">
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="observaciones">Observaciones adicionales (opcional)</label>
-                        <textarea id="observaciones" name="observaciones" class="form-input" rows="3" 
-                                  placeholder="Comentarios o requerimientos especiales"></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="adelantoPagado">Adelanto pagado en soles (S/.) - Opcional</label>
-                        <input type="number" id="adelantoPagado" name="adelanto_pagado" class="form-input" 
-                               placeholder="Escribe 0 si no dio adelanto" step="0.01" min="0" value="0">
                     </div>
                 </div>
                 
-                <!-- Botón de Envío -->
                 <div class="submit-section">
                     <button type="submit" id="submitButton" class="submit-button">
-                        <span id="submitText">GENERAR COTIZACIÓN</span>
+                        <span id="submitText">🚀 GENERAR COTIZACIÓN PERSONALIZADA</span>
                         <div id="loadingSpinner" class="loading-spinner"></div>
                     </button>
                 </div>
@@ -1211,166 +1324,83 @@
         // ==========================================
         // VARIABLES GLOBALES
         // ==========================================
+        
         let actividadesSeleccionadas = [];
         let itinerario = [];
-        let tipoTransporteSeleccionado = null;
-        let modalidadPrecioSeleccionada = null;
-        let categoriaActual = 'all';
+        let modalidadPrecioSeleccionada = '';
+        let tipoTransporteSeleccionado = 'expedition';
         
         // ==========================================
-        // CONFIGURACIÓN DEL FORMULARIO
-        // ==========================================
-        // Eliminado: event listener duplicado
-        
-        // ==========================================
-        // CONFIGURACIÓN GOOGLE SHEETS
-        // ==========================================
-        const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxyMwt1ywrb74yLEAfF2QNVf6wDGStAV6Qiu1nA5cgkJhEvFq8szcubM_RfpaFeZumbvQ/exec';
-        
-        const actividades = {
-            'LLEGADA': { emoji: '🛬', categoria: 'traslados', incluye_machu_picchu: false },
-            'LLEGADA+CITY': { emoji: '🛬🏛️', categoria: 'traslados', incluye_machu_picchu: false },
-            'IDA-CUZ': { emoji: '🚂', categoria: 'traslados', incluye_machu_picchu: false },
-            'OLLANTAY-IDA': { emoji: '🚂', categoria: 'traslados', incluye_machu_picchu: false },
-            'SALIDA': { emoji: '✈️', categoria: 'traslados', incluye_machu_picchu: false },
-            'CITY': { emoji: '🏛️', categoria: 'principales', incluye_machu_picchu: false },
-            'MÍSTICO': { emoji: '🌟', categoria: 'principales', incluye_machu_picchu: false },
-            'MAPI': { emoji: '🏔️', categoria: 'principales', incluye_machu_picchu: true },
-            'MAPI 3 AM': { emoji: '🌅', categoria: 'principales', incluye_machu_picchu: true },
-            'FULL MAPI': { emoji: '🌅', categoria: 'principales', incluye_machu_picchu: true },
-            'FOTOGRAFIA': { emoji: '📸', categoria: 'principales', incluye_machu_picchu: false },
-            'LIBRE-SIN GUIA': { emoji: '🆓', categoria: 'principales', incluye_machu_picchu: false },
-            'VALLE+MAPI': { emoji: '🌄', categoria: 'valle', incluye_machu_picchu: true },
-            'VALLE+PISAC': { emoji: '🌾', categoria: 'valle', incluye_machu_picchu: false },
-            'VALLE+OLLANTAY': { emoji: '🏛️', categoria: 'valle', incluye_machu_picchu: false },
-            'MONTAÑA': { emoji: '🗻', categoria: 'montanas', incluye_machu_picchu: false },
-            'SUR': { emoji: '⛰️', categoria: 'montanas', incluye_machu_picchu: false },
-            'WAQRAPUKARA': { emoji: '🏔️', categoria: 'montanas', incluye_machu_picchu: false },
-            'MONTAÑA+CUATRI': { emoji: '🏍️', categoria: 'montanas', incluye_machu_picchu: false },
-            'PUENTE': { emoji: '🌉', categoria: 'montanas', incluye_machu_picchu: false },
-            'MORADA-BUS': { emoji: '🚌', categoria: 'montanas', incluye_machu_picchu: false },
-            'MORADA-CUATRI': { emoji: '🏍️', categoria: 'montanas', incluye_machu_picchu: false },
-            'PALCOYO': { emoji: '🎨', categoria: 'montanas', incluye_machu_picchu: false },
-            'LAGUNA': { emoji: '🌊', categoria: 'lagunas', incluye_machu_picchu: false },
-            '7 LAGUNA': { emoji: '💧', categoria: 'lagunas', incluye_machu_picchu: false },
-            'MORADA-CUATRI-LAGU': { emoji: '🏍️🌊', categoria: 'lagunas', incluye_machu_picchu: false }
-        };
-        
-        // ==========================================
-        // INICIALIZACIÓN
-        // ==========================================
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Inicializando Tour Personalizado...');
-            
-            // Configurar formulario
-            const form = document.getElementById('tourPersonalizadoForm');
-            if (form) {
-                form.addEventListener('submit', enviarCotizacion);
-                console.log('✅ Evento submit configurado');
-            }
-            
-            // Ejecutar detección de transporte inicial
-            detectarTransporte();
-        });
-        
-        // ==========================================
-        // PASO 1: SELECCIÓN DE ACTIVIDADES
+        // PASO 1: SELECCIONA ACTIVIDADES
         // ==========================================
         
         function toggleActivity(element) {
-            const actividad = element.dataset.activity;
-            const checkbox = element.querySelector('.activity-checkbox');
+            const activity = element.dataset.activity;
             
             if (element.classList.contains('selected')) {
                 // Deseleccionar
                 element.classList.remove('selected');
-                checkbox.textContent = '☐';
-                actividadesSeleccionadas = actividadesSeleccionadas.filter(a => a !== actividad);
+                element.querySelector('.activity-checkbox').textContent = '☐';
+                actividadesSeleccionadas = actividadesSeleccionadas.filter(a => a !== activity);
             } else {
                 // Seleccionar
                 element.classList.add('selected');
-                checkbox.textContent = '☑️';
-                actividadesSeleccionadas.push(actividad);
+                element.querySelector('.activity-checkbox').textContent = '☑';
+                actividadesSeleccionadas.push(activity);
             }
             
             actualizarResumenActividades();
             actualizarActividadInicial();
-            detectarTransporte();
-            actualizarPreciosIndividuales();
         }
         
         function actualizarResumenActividades() {
             const summary = document.getElementById('activitySummary');
             const count = document.getElementById('activityCount');
-            const activities = document.getElementById('selectedActivities');
+            const selected = document.getElementById('selectedActivities');
             
             if (actividadesSeleccionadas.length > 0) {
-                summary.style.display = 'block';
                 count.textContent = actividadesSeleccionadas.length;
-                activities.textContent = actividadesSeleccionadas.join(', ');
+                selected.textContent = actividadesSeleccionadas.join(', ');
+                summary.style.display = 'block';
             } else {
                 summary.style.display = 'none';
             }
         }
         
-        function filtrarPorCategoria(categoria) {
-            categoriaActual = categoria;
-            
-            // Actualizar tabs
-            document.querySelectorAll('.category-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelector(`[data-category="${categoria}"]`).classList.add('active');
-            
-            // Mostrar/ocultar categorías
-            document.querySelectorAll('.activity-category').forEach(cat => {
-                if (categoria === 'all' || cat.dataset.category === categoria) {
-                    cat.style.display = 'block';
-                } else {
-                    cat.style.display = 'none';
-                }
-            });
-        }
-        
         function filtrarActividades() {
             const searchTerm = document.getElementById('searchActivities').value.toLowerCase();
+            const activityItems = document.querySelectorAll('.activity-item');
             
-            document.querySelectorAll('.activity-item').forEach(item => {
-                const activityName = item.querySelector('.activity-name').textContent.toLowerCase();
-                const category = item.closest('.activity-category');
-                
+            activityItems.forEach(item => {
+                const activityName = item.dataset.activity.toLowerCase();
                 if (activityName.includes(searchTerm)) {
                     item.style.display = 'flex';
-                    
-                    // Mostrar la categoría si tiene resultados
-                    if (categoriaActual === 'all' || category.dataset.category === categoriaActual) {
-                        category.style.display = 'block';
-                    }
                 } else {
                     item.style.display = 'none';
                 }
             });
+        }
+        
+        function filtrarPorCategoria(categoria) {
+            // Actualizar tabs
+            document.querySelectorAll('.category-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`[data-category="${categoria}"]`).classList.add('active');
             
-            // Ocultar categorías vacías
-            document.querySelectorAll('.activity-category').forEach(cat => {
-                const visibleItems = cat.querySelectorAll('.activity-item[style*="flex"]');
-                if (visibleItems.length === 0 && searchTerm) {
-                    cat.style.display = 'none';
+            // Mostrar/ocultar categorías
+            const categories = document.querySelectorAll('.activity-category');
+            categories.forEach(category => {
+                if (categoria === 'all' || category.dataset.category === categoria) {
+                    category.style.display = 'block';
+                } else {
+                    category.style.display = 'none';
                 }
             });
         }
         
-        // ==========================================
-        // PASO 2: CONFIGURACIÓN DEL ITINERARIO
-        // ==========================================
-        
         function actualizarActividadInicial() {
             const select = document.getElementById('actividadInicial');
-            
-            // Limpiar opciones
             select.innerHTML = '<option value="">Selecciona actividad</option>';
             
-            // Agregar actividades seleccionadas
             actividadesSeleccionadas.forEach(actividad => {
                 const option = document.createElement('option');
                 option.value = actividad;
@@ -1379,135 +1409,283 @@
             });
         }
         
+        // ==========================================
+        // PASO 2: CONFIGURACIÓN DEL ITINERARIO
+        // ==========================================
+        
         function generarItinerario() {
             const actividadInicial = document.getElementById('actividadInicial').value;
             const fechaInicio = document.getElementById('fechaInicio').value;
             
-            if (!actividadInicial || !fechaInicio || actividadesSeleccionadas.length === 0) {
+            if (!actividadInicial || !fechaInicio) {
                 document.getElementById('itinerarioGenerado').style.display = 'none';
+                itinerario = [];
+                actualizarConfiguracionNoches();
                 return;
             }
             
+            // Generar itinerario basado en actividades seleccionadas
             itinerario = [];
             
-            // Ordenar actividades comenzando con la inicial
-            const actividadesOrdenadas = [actividadInicial, ...actividadesSeleccionadas.filter(a => a !== actividadInicial)];
+            // CORRECCIÓN: Crear fecha considerando la zona horaria local para evitar offset
+            const [year, month, day] = fechaInicio.split('-').map(Number);
+            let fechaActual = new Date(year, month - 1, day); // month-1 porque es 0-indexed
+            let actividadIndex = actividadesSeleccionadas.indexOf(actividadInicial);
             
-            // Generar itinerario
-            const fechaBase = new Date(fechaInicio);
-            actividadesOrdenadas.forEach((actividad, index) => {
-                const fecha = new Date(fechaBase);
-                fecha.setDate(fecha.getDate() + index);
-                
+            if (actividadIndex === -1) {
+                actividadIndex = 0;
+                actividadesSeleccionadas.unshift(actividadInicial);
+            }
+            
+            // Agregar actividades desde la inicial hasta el final
+            for (let i = actividadIndex; i < actividadesSeleccionadas.length; i++) {
+                const actividad = actividadesSeleccionadas[i];
                 itinerario.push({
-                    dia: index + 1,
-                    fecha: fecha.toLocaleDateString('es-ES'),
-                    actividad: actividad
+                    dia: i - actividadIndex + 1,
+                    actividad: actividad,
+                    fecha: fechaActual.toLocaleDateString('es-ES', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    })
                 });
+                
+                // Incrementar fecha para el siguiente día
+                fechaActual.setDate(fechaActual.getDate() + 1);
+            }
+            
+            // Agregar actividades antes de la inicial
+            for (let i = actividadIndex - 1; i >= 0; i--) {
+                const actividad = actividadesSeleccionadas[i];
+                fechaActual.setDate(fechaActual.getDate() - 1);
+                itinerario.unshift({
+                    dia: actividadesSeleccionadas.indexOf(actividad) - actividadIndex + 1,
+                    actividad: actividad,
+                    fecha: fechaActual.toLocaleDateString('es-ES', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    })
+                });
+            }
+            
+            // Renumerar días
+            itinerario.forEach((item, index) => {
+                item.dia = index + 1;
             });
             
             // Mostrar itinerario
-            const content = document.getElementById('itinerarioContent');
-            content.innerHTML = itinerario.map(item => 
-                `<div class="itinerary-item">• DÍA ${item.dia} (${item.fecha}): ${item.actividad}</div>`
+            const contenido = itinerario.map(item => 
+                `<div class="itinerary-item">
+                    <strong>DÍA ${item.dia}:</strong> ${item.actividad} - ${item.fecha}
+                </div>`
             ).join('');
             
+            document.getElementById('itinerarioContent').innerHTML = contenido;
             document.getElementById('itinerarioGenerado').style.display = 'block';
             
-            // Actualizar configuración de noches
             actualizarConfiguracionNoches();
         }
         
         // ==========================================
-        // PASO 3: TRANSPORTE
+        // PASO 3: TREN A MACHU PICCHU
         // ==========================================
         
-        function detectarTransporte() {
-            console.log('Ejecutando detectarTransporte()');
-            console.log('Actividades seleccionadas:', actividadesSeleccionadas);
+        function seleccionarTren(tipo) {
+            // Actualizar selección visual
+            document.querySelectorAll('.tren-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            document.querySelector(`[data-tren="${tipo}"]`).classList.add('active');
             
-            const incluyeMachuPicchu = actividadesSeleccionadas.some(actividad => {
-                const incluye = actividades[actividad] && actividades[actividad].incluye_machu_picchu;
-                console.log(`Actividad ${actividad}: incluye MP = ${incluye}`);
-                return incluye;
+            // Actualizar variable global
+            tipoTransporteSeleccionado = tipo;
+            
+            // Actualizar campo hidden
+            document.getElementById('tipo_tren').value = tipo;
+            
+            // Mostrar/ocultar configuraciones
+            document.getElementById('expeditionInfo').style.display = tipo === 'expedition' ? 'block' : 'none';
+            document.getElementById('trenTuristicoConfig').classList.toggle('show', tipo === 'vistadome');
+            
+            if (tipo === 'vistadome') {
+                setTimeout(() => {
+                    document.getElementById('horarioIdaTren').focus();
+                }, 300);
+            }
+        }
+        
+        /**
+         * Calcula y actualiza el total del tren turístico
+         * Solo se ejecuta cuando se selecciona el tren Vistadome
+         */
+        function calcularTotalTren() {
+            const precioPorPersonaInput = document.getElementById('precioPorPersonaTren');
+            const personasTrenInput = document.getElementById('personasTren');
+            const totalElement = document.getElementById('totalTrenCalculado');
+            const detalleElement = document.getElementById('calculoDetalleTren');
+            
+            if (tipoTransporteSeleccionado !== 'vistadome') {
+                return; // Solo calcular si es tren turístico
+            }
+            
+            const precioPorPersona = parseFloat(precioPorPersonaInput?.value) || 0;
+            const personasTexto = personasTrenInput?.value || '';
+            const numeroPersonas = extraerNumeroPersonas(personasTexto);
+            
+            const total = precioPorPersona * numeroPersonas;
+            
+            if (precioPorPersona > 0 && numeroPersonas > 0) {
+                totalElement.innerHTML = `<span>USD ${total.toFixed(2)}</span>`;
+                detalleElement.textContent = `USD ${precioPorPersona.toFixed(2)} × ${numeroPersonas} personas = USD ${total.toFixed(2)}`;
+            } else {
+                totalElement.innerHTML = '<span style="font-size: 1.2rem; font-weight: 400; color: var(--text-muted); padding: 8px 0;">Ingresa el precio por persona y la cantidad de personas</span>';
+                detalleElement.textContent = '';
+            }
+            
+            // ✅ SINCRONIZACIÓN v4.12: Actualizar campos ocultos automáticamente
+            sincronizarCamposTren(numeroPersonas, precioPorPersona, total);
+        }
+        
+        /**
+         * ✅ NUEVA FUNCIÓN v4.12: Sincroniza campos ocultos del tren para evitar problemas de null
+         * @param {number} numeroPersonas - Número de personas en el tren
+         * @param {number} precioPorPersona - Precio por persona en USD
+         * @param {number} total - Precio total calculado
+         */
+        function sincronizarCamposTren(numeroPersonas, precioPorPersona, total) {
+            // Crear campos ocultos si no existen
+            const camposOcultos = {
+                'personas_tren_hidden': numeroPersonas.toString(),
+                'precio_por_persona_tren_hidden': precioPorPersona.toString(),
+                'precio_total_tren_hidden': total.toString()
+            };
+            
+            // Crear y actualizar campos ocultos
+            Object.entries(camposOcultos).forEach(([campoId, valor]) => {
+                let campo = document.getElementById(campoId);
+                
+                if (!campo) {
+                    campo = document.createElement('input');
+                    campo.type = 'hidden';
+                    campo.id = campoId;
+                    campo.name = campoId;
+                    document.getElementById('tourPersonalizadoForm').appendChild(campo);
+                }
+                
+                campo.value = valor;
             });
             
-            console.log('Incluye Machu Picchu:', incluyeMachuPicchu);
+            // Log para debug
+            console.log('🚂 Sincronización de campos del tren actualizada:');
+            console.log(`   - personas_tren_hidden: ${numeroPersonas}`);
+            console.log(`   - precio_por_persona_tren_hidden: ${precioPorPersona}`);
+            console.log(`   - precio_total_tren_hidden: ${total}`);
+        }
+
+        /**
+         * ✅ FUNCIÓN ACTUALIZADA: Actualizar información visual del tren
+         * @param {string} tipoTren - Tipo de tren ('expedition' o 'vistadome')
+         * @param {number} numeroPersonas - Número de personas
+         * @param {number} precioPorPersona - Precio por persona (solo para tren turístico)
+         * @param {number} total - Precio total (solo para tren turístico)
+         * @param {string} horarioIda - Horario de ida (solo para tren turístico)
+         * @param {string} horarioRetorno - Horario de retorno (solo para tren turístico)
+         */
+        function actualizarInformacionVisualTren(tipoTren, numeroPersonas, precioPorPersona, total, horarioIda = '', horarioRetorno = '') {
+            // Buscar si existe un contenedor de información del tren
+            let infoTrenContainer = document.getElementById('informacionTrenContainer');
             
-            const detectado = document.getElementById('transporteDetectado');
-            const noDetectado = document.getElementById('transporteNoDetectado');
-            const section = document.getElementById('transporteSection');
-            
-            if (incluyeMachuPicchu) {
-                // Mostrar selección de transporte
-                detectado.style.display = 'block';
-                noDetectado.style.display = 'none';
-                section.style.display = 'block';
-                console.log('Mostrando opciones de transporte');
-            } else {
-                // Mostrar mensaje informativo
-                detectado.style.display = 'none';
-                noDetectado.style.display = 'block';
-                section.style.display = 'none';
+            if (infoTrenContainer) {
+                // Determinar el tipo de tren y valores según el tipo
+                let tipoTrenLabel = '';
+                let precioTexto = '';
+                let totalTexto = '';
+                let horarioIdaTexto = '';
+                let horarioRetornoTexto = '';
                 
-                // Limpiar selección de transporte
-                tipoTransporteSeleccionado = null;
-                document.getElementById('tipoTransporte').value = '';
-                document.querySelectorAll('.transport-option').forEach(opt => opt.classList.remove('selected'));
-                document.getElementById('transporteConfig').classList.remove('show');
-                console.log('Ocultando opciones de transporte');
+                if (tipoTren === 'expedition' || tipoTren === 'local') {
+                    // Tren local (Expedition)
+                    tipoTrenLabel = 'tren local';
+                    precioTexto = 'incluye programa';
+                    totalTexto = 'incluye programa';
+                    horarioIdaTexto = 'Por definir';
+                    horarioRetornoTexto = 'Por definir';
+                } else {
+                    // Tren turístico (Vistadome)
+                    tipoTrenLabel = 'Turístico';
+                    precioTexto = `USD ${precioPorPersona.toFixed(2)}`;
+                    totalTexto = total.toFixed(2);
+                    horarioIdaTexto = horarioIda || 'Por definir';
+                    horarioRetornoTexto = horarioRetorno || 'Por definir';
+                }
+                
+                infoTrenContainer.innerHTML = `
+                    <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px; margin-top: 16px;">
+                        <h4 style="color: var(--text-primary); margin: 0 0 12px 0; font-size: 1.1rem;">INFORMACIÓN DEL TREN</h4>
+                        <h5 style="color: var(--text-secondary); margin: 0 0 12px 0; font-size: 0.9rem; font-weight: 500;">DETALLES DEL TREN</h5>
+                        <div style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8;">
+                            <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                                <span><strong>N° PERSONAS</strong></span>
+                                <span style="font-weight: 600; color: var(--text-primary);">${numeroPersonas}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                                <span><strong>PRECIO</strong></span>
+                                <span style="font-weight: 600; color: var(--text-primary);">${precioTexto}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                                <span><strong>HORA IDA</strong></span>
+                                <span style="font-weight: 600; color: var(--text-primary);">${horarioIdaTexto}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                                <span><strong>HORA RETORNO</strong></span>
+                                <span style="font-weight: 600; color: var(--text-primary);">${horarioRetornoTexto}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                                <span><strong>TOTAL</strong></span>
+                                <span style="font-weight: 800; color: var(--gold);">${totalTexto}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                                <span><strong>TIPO</strong></span>
+                                <span style="font-weight: 600; color: var(--text-primary);">${tipoTrenLabel}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
         }
-        
-        function mostrarTransporteManual() {
-            const detectado = document.getElementById('transporteDetectado');
-            const noDetectado = document.getElementById('transporteNoDetectado');
-            const section = document.getElementById('transporteSection');
-            
-            // Forzar mostrar sección de transporte
-            detectado.style.display = 'none';
-            noDetectado.style.display = 'none';
-            section.style.display = 'block';
-            
-            // Mostrar mensaje de configuración manual
-            const manualMessage = document.createElement('div');
-            manualMessage.className = 'warning-message';
-            manualMessage.innerHTML = '⚙️ CONFIGURACIÓN MANUAL: Puedes seleccionar el tipo de transporte según tus necesidades.';
-            
-            const stepSection = section.parentElement;
-            stepSection.insertBefore(manualMessage, section);
-            
-            console.log('Mostrando transporte manual');
+
+        /**
+         * Función auxiliar para extraer número de personas del texto
+         * @param {string} texto - Texto con el número de personas
+         * @returns {number} - Número de personas extraído
+         */
+        function extraerNumeroPersonas(texto) {
+            if (!texto) return 0;
+            // Buscar números en el texto
+            const numeros = texto.match(/\d+/);
+            return numeros ? parseInt(numeros[0]) : 0;
         }
-        
-        function seleccionarTransporte(tipo) {
-            // Remover selección previa
-            document.querySelectorAll('.transport-option').forEach(opt => opt.classList.remove('selected'));
-            
-            // Seleccionar nuevo
-            document.querySelector(`[data-transport="${tipo}"]`).classList.add('selected');
-            tipoTransporteSeleccionado = tipo;
-            document.getElementById('tipoTransporte').value = tipo;
-            
-            // Mostrar/ocultar configuración
-            const config = document.getElementById('transporteConfig');
-            if (tipo === 'turistico') {
-                config.classList.add('show');
-                // Mostrar mensaje de que se requiere configuración
-                console.log('Tren turístico seleccionado - Se requiere configuración');
-            } else if (tipo === 'local') {
-                config.classList.remove('show');
-                // Incluir automáticamente sin pedir datos
-                console.log('Tren local seleccionado - Incluido automáticamente');
-                // Limpiar campos del tren turístico
-                document.getElementById('personasTren').value = '';
-                document.getElementById('horaTren').value = '';
-                document.getElementById('fechaTren').value = '';
-                document.getElementById('precioTren').value = '';
-                document.getElementById('precioTotalTren').value = '';
-            }
+
+        /**
+         * Función para calcular total del tren turístico (para envío de datos)
+         * @returns {number} - Precio total calculado
+         */
+        function calcularPrecioTotalTren() {
+            const precioPorPersonaInput = document.getElementById('precioPorPersonaTren');
+            const personasTrenInput = document.getElementById('personasTren');
+
+            const precioPorPersona = parseFloat(precioPorPersonaInput?.value) || 0;
+
+            // Extraer número de personas del texto
+            const personasTexto = personasTrenInput?.value || '';
+            const numeroPersonas = extraerNumeroPersonas(personasTexto);
+
+            return precioPorPersona * numeroPersonas;
         }
-        
+
         // ==========================================
         // PASO 4: ALOJAMIENTO
         // ==========================================
@@ -1574,35 +1752,146 @@
         
         function actualizarPreciosIndividuales() {
             const container = document.getElementById('preciosIndividuales');
-            
+
             if (actividadesSeleccionadas.length === 0) {
                 container.innerHTML = '';
-                document.getElementById('subtotalIndividual').style.display = 'none';
                 return;
             }
-            
+
             container.innerHTML = actividadesSeleccionadas.map(actividad => `
                 <div class="form-group">
-                    <label class="form-label">${actividad}:</label>
-                    <input type="number" name="precio_${actividad.replace(/\s+/g, '_')}" 
-                           class="form-input precio-individual" placeholder="S/. 0.00" 
-                           step="0.01" min="0" onchange="calcularSubtotal()">
+                    <label class="form-label">${actividad} - Precio por persona (S/.)*:</label>
+                    <input type="number" name="precio_${actividad.replace(/\s+/g, '_')}"
+                           class="form-input precio-individual" placeholder="S/. 0.00"
+                           step="0.01" min="0" oninput="calcularTotalIndividual()">
                 </div>
             `).join('');
-            
-            calcularSubtotal();
+
+            calcularTotalIndividual();
         }
-        
-        function calcularSubtotal() {
-            const inputs = document.querySelectorAll('.precio-individual');
-            let subtotal = 0;
+
+        /**
+         * Actualiza los campos ocultos con los valores calculados para evitar null en webhook
+         */
+        function actualizarCamposOcultos() {
+            const modalidad = document.getElementById('modalidadPrecio')?.value;
+            const precioPorPersona = document.getElementById('precioPorPersonaPaquete')?.value;
+            const numeroPersonas = document.getElementById('numeroPersonas')?.value;
             
+            // Obtener precio total según la modalidad seleccionada
+            let precioTotal = '0';
+            if (modalidadPrecioSeleccionada === 'paquete') {
+                const totalElement = document.getElementById('totalPaqueteCalculado');
+                if (totalElement) {
+                    const textoTotal = totalElement.textContent || totalElement.innerText || '';
+                    // Extraer solo números del texto, eliminando puntos al inicio
+                    const match = textoTotal.match(/\d+(?:[.,]\d+)*(?:\.\d+)?/);
+                    const numeroLimpio = match ? match[0].replace(/,/g, '') : '0';
+                    precioTotal = numeroLimpio || '0';
+                }
+            } else if (modalidadPrecioSeleccionada === 'individual') {
+                const totalElement = document.getElementById('totalIndividualCalculado');
+                if (totalElement) {
+                    const textoTotal = totalElement.textContent || totalElement.innerText || '';
+                    // Extraer solo números del texto, eliminando puntos al inicio
+                    const match = textoTotal.match(/\d+(?:[.,]\d+)*(?:\.\d+)?/);
+                    const numeroLimpio = match ? match[0].replace(/,/g, '') : '0';
+                    precioTotal = numeroLimpio || '0';
+                }
+            }
+            
+            // Actualizar campos ocultos
+            const modalidadHidden = document.getElementById('modalidadPrecio');
+            if (modalidadHidden && modalidad) {
+                modalidadHidden.value = modalidad;
+            }
+            
+            const precioHidden = document.getElementById('precio_por_persona_paquete_hidden');
+            if (precioHidden && precioPorPersona) {
+                precioHidden.value = precioPorPersona;
+            }
+            
+            const numeroHidden = document.getElementById('numero_personas_hidden');
+            if (numeroHidden && numeroPersonas) {
+                numeroHidden.value = numeroPersonas;
+            }
+            
+            const totalHidden = document.getElementById('precio_total_hidden');
+            if (totalHidden && precioTotal) {
+                totalHidden.value = precioTotal;
+            }
+        }
+
+        /**
+         * Calcula el total para el modo de Precios Individuales
+         * Total = suma(precios por actividad) × número de personas
+         */
+        function calcularTotalIndividual() {
+            const inputs = document.querySelectorAll('.precio-individual');
+            const numeroPersonasInput = document.getElementById('numeroPersonas');
+            const totalElement = document.getElementById('totalIndividualCalculado');
+            const detalleElement = document.getElementById('calculoDetalleIndividual');
+
+            // Calcular subtotal (suma de precios por persona de todas las actividades)
+            let subtotal = 0;
             inputs.forEach(input => {
                 subtotal += parseFloat(input.value) || 0;
             });
+
+            // Obtener número de personas
+            const numeroPersonasTexto = numeroPersonasInput?.value || '';
+            const numeroPersonas = extraerNumeroPersonas(numeroPersonasTexto) || 0;
+
+            const total = subtotal * numeroPersonas;
+
+            if (subtotal > 0 && numeroPersonas > 0) {
+                totalElement.innerHTML = `<span>S/. ${total.toFixed(2)}</span>`;
+                detalleElement.textContent = `S/. ${subtotal.toFixed(2)} (por persona) × ${numeroPersonas} personas = S/. ${total.toFixed(2)}`;
+            } else {
+                totalElement.innerHTML = '<span style="font-size: 1.2rem; font-weight: 400; color: var(--text-muted); padding: 8px 0;">Ingresa los precios y el número de personas</span>';
+                detalleElement.textContent = '';
+            }
             
-            document.getElementById('subtotalAmount').textContent = subtotal.toFixed(2);
-            document.getElementById('subtotalIndividual').style.display = 'block';
+            // Actualizar campos ocultos para evitar null en webhook
+            actualizarCamposOcultos();
+        }
+
+        /**
+         * Calcula el total para el modo Paquete Privado
+         * Total = precio por persona × número de personas
+         */
+        function calcularTotalPaquete() {
+            const precioPorPersonaInput = document.getElementById('precioPorPersonaPaquete');
+            const numeroPersonasInput = document.getElementById('numeroPersonas');
+            const totalElement = document.getElementById('totalPaqueteCalculado');
+            const detalleElement = document.getElementById('calculoDetallePaquete');
+
+            const precioPorPersona = parseFloat(precioPorPersonaInput?.value) || 0;
+            const numeroPersonasTexto = numeroPersonasInput?.value || '';
+            const numeroPersonas = extraerNumeroPersonas(numeroPersonasTexto) || 0;
+
+            const total = precioPorPersona * numeroPersonas;
+
+            if (precioPorPersona > 0 && numeroPersonas > 0) {
+                totalElement.innerHTML = `<span>S/. ${total.toFixed(2)}</span>`;
+                detalleElement.textContent = `S/. ${precioPorPersona.toFixed(2)} × ${numeroPersonas} personas = S/. ${total.toFixed(2)}`;
+            } else {
+                totalElement.innerHTML = '<span style="font-size: 1.2rem; font-weight: 400; color: var(--text-muted); padding: 8px 0;">Ingresa el precio por persona y el número de personas</span>';
+                detalleElement.textContent = '';
+            }
+            
+            // Actualizar campos ocultos para evitar null en webhook
+            actualizarCamposOcultos();
+        }
+
+        /**
+         * Recalcula los precios cuando cambia el número de personas
+         * Llama a ambas funciones de cálculo (paquete e individual)
+         */
+        function recalcularPrecios() {
+            calcularTotalPaquete();
+            calcularTotalIndividual();
+            actualizarCamposOcultos();
         }
         
         // ==========================================
@@ -1629,6 +1918,9 @@
                     throw new Error('Debes seleccionar una modalidad de precio');
                 }
                 
+                // Actualizar campos ocultos antes de recopilar datos
+                actualizarCamposOcultos();
+                
                 // Recopilar datos del formulario
                 const formData = new FormData(e.target);
                 
@@ -1653,6 +1945,10 @@
                     });
                 }
                 
+                // ✅ CORRECCIÓN v4.12: Usar configuración sincronizada del tren
+                // Obtener configuración completa del tren (incluye sincronización)
+                const configTren = obtenerConfiguracionTransporte();
+
                 // Crear payload para n8n (compatible con Google Sheets)
                 const payload = {
                     origen: 'formulario_web',
@@ -1671,13 +1967,15 @@
                     fecha_tour: formData.get('fecha_inicio'),
                     actividad_inicial: formData.get('actividad_inicial'),
                     
-                    // Transporte
-                    tipo_transporte: formData.get('tipo_transporte'),
-                    personas_tren: formData.get('personas_tren'),
-                    hora_tren: formData.get('hora_tren'),
-                    fecha_tren: formData.get('fecha_tren'),
-                    precio_tren: formData.get('precio_tren') ? parseFloat(formData.get('precio_tren')) : null,
-                    precio_total_tren: formData.get('precio_total_tren'),
+                    // Transporte (usando configuración sincronizada)
+                    tipo_transporte: formData.get('tipo_tren'),
+                    personas_tren: configTren.personas_tren,
+                    horario_ida_tren: configTren.horario_ida_tren,
+                    horario_retorno_tren: configTren.horario_retorno_tren,
+                    fecha_tren: formData.get('fecha_inicio'),
+                    precio_por_persona_tren: configTren.precio_por_persona_tren ? parseFloat(configTren.precio_por_persona_tren) : null,
+                    // Calcular total automáticamente (también sincronizado)
+                    precio_total_tren: configTren.precio_total_tren,
                     
                     // Alojamiento
                     tipo_habitacion: formData.get('tipo_habitacion'),
@@ -1692,7 +1990,11 @@
                     
                     // Adicionales
                     observaciones: formData.get('observaciones') || '',
-                    
+
+                    // Datos del Asesor
+                    nombre_asesor: formData.get('nombre_asesor'),
+                    email_asesor: formData.get('email_asesor'),
+
                     // Metadatos para Google Sheets
                     fecha_creacion: new Date().toISOString(),
                     timestamp: new Date().toISOString(),
@@ -1759,8 +2061,9 @@
                         
                         // Guardar en localStorage
                         localStorage.setItem('ores_cotizaciones', JSON.stringify(cotizaciones));
-                        console.log('✅ Cotización guardada en localStorage');
+                        console.log('✅ Cotización guardada en localStorage:', formData);
                         
+                        // SINCRONIZACIÓN CON GOOGLE SHEETS HABILITADA
                         // Sincronizar con Google Sheets en segundo plano
                         enviarAGoogleSheets(cotizacionParaGuardar).then(() => {
                             console.log('✅ Cotización sincronizada con Google Sheets');
@@ -1896,16 +2199,17 @@
          */
         function prepararPayloadPersonalizado() {
             const formData = new FormData(document.getElementById('tourForm'));
-            
+            const configTren = obtenerConfiguracionTransporte();
+
             const payload = {
                 origen: 'formulario',
                 tipo_tour: 'personalizado',
-                
+
                 // Datos del cliente
                 nombre_cliente: formData.get('nombre_cliente'),
                 telefono: formData.get('telefono'),
                 email: formData.get('email') || '',
-                
+
                 // Datos del tour
                 actividades_seleccionadas: actividadesSeleccionadas,
                 fecha_inicio: formData.get('fecha_inicio'),
@@ -1913,20 +2217,31 @@
                 tipo_habitacion: formData.get('tipo_habitacion'),
                 categoria_hotel: formData.get('categoria_hotel'),
                 modalidad_precios: formData.get('modalidad_precios') || 'PAQUETE_PRIVADO',
-                
+
                 // Configuraciones específicas
                 configuracion_noches: obtenerConfiguracionNoches(),
-                transporte: obtenerConfiguracionTransporte(),
                 precio_total: parseFloat(formData.get('precio_total')) || 0,
                 adelanto: parseFloat(formData.get('adelanto')) || 0,
-                
+
+                // Configuración de tren (campos directos)
+                tipo_tren: configTren.tipo_tren,
+                horario_ida_tren: configTren.horario_ida_tren,
+                horario_retorno_tren: configTren.horario_retorno_tren,
+                personas_tren: configTren.personas_tren,
+                precio_por_persona_tren: configTren.precio_por_persona_tren,
+                precio_total_tren: configTren.precio_total_tren,
+
                 // Observaciones
                 observaciones: formData.get('observaciones') || '',
-                
+
+                // Datos del Asesor
+                nombre_asesor: formData.get('nombre_asesor'),
+                email_asesor: formData.get('email_asesor'),
+
                 // Metadatos
                 timestamp: new Date().toISOString()
             };
-            
+
             console.log('📦 Payload preparado:', payload);
             return payload;
         }
@@ -1946,24 +2261,109 @@
         }
         
         /**
-         * Obtener configuración de transporte
+         * Normalizar tipo de tren
          */
-        function obtenerConfiguracionTransporte() {
-            const tipoTransporte = document.querySelector('input[name="tipo_transporte"]:checked');
+        function normalizarTipoTren(tipoTrenOriginal) {
+            if (!tipoTrenOriginal) return 'expedition';
             
-            if (!tipoTransporte) {
-                return { tipo: 'no_especificado' };
-            }
-            
-            const config = {
-                tipo: tipoTransporte.value
+            // Mapeo de valores antiguos a nuevos valores normalizados
+            const mapeoTipos = {
+                'vistadome': 'turistico',
+                'vista dome': 'turistico', 
+                'vista-dome': 'turistico',
+                'turistico': 'turistico',
+                'turístico': 'turistico',
+                'expedition': 'tren local',
+                'tren local': 'tren local',
+                'local': 'tren local'
             };
             
-            // Si es tren turístico, obtener configuración adicional
-            if (tipoTransporte.value === 'TURISTICO') {
-                config.personas_tren = document.getElementById('personas_tren')?.value || '';
-                config.precio_usd = document.getElementById('precio_usd')?.value || '';
+            // Normalizar a minúsculas para comparar
+            const tipoNormalizado = tipoTrenOriginal.toLowerCase().trim();
+            
+            // Buscar coincidencia exacta
+            if (mapeoTipos[tipoNormalizado]) {
+                console.log(`✅ Tipo tren normalizado: "${tipoTrenOriginal}" → "${mapeoTipos[tipoNormalizado]}"`);
+                return mapeoTipos[tipoNormalizado];
             }
+            
+            // Si no encuentra coincidencia, usar el valor original pero formateado
+            const tipoFormateado = tipoNormalizado === 'turistico' || tipoNormalizado === 'turístico' ? 'turistico' : 
+                                  tipoNormalizado === 'expedition' ? 'tren local' : tipoTrenOriginal;
+            
+            console.log(`⚠️ Tipo tren sin mapeo, usando original: "${tipoTrenOriginal}" → "${tipoFormateado}"`);
+            return tipoFormateado;
+        }
+
+        /**
+         * Obtener configuración de transporte/tren
+         */
+        function obtenerConfiguracionTransporte() {
+            const tipoTrenOriginal = document.getElementById('tipo_tren')?.value || 'expedition';
+            const tipoTren = normalizarTipoTren(tipoTrenOriginal);
+
+            const config = {
+                tipo_tren: tipoTren,
+                horario_ida_tren: '',
+                horario_retorno_tren: '',
+                personas_tren: '',
+                precio_por_persona_tren: '',
+                precio_total_tren: 0
+            };
+
+            // Si es tren turístico (turistico), obtener configuración sincronizada
+            if (tipoTren === 'turistico') {
+                // Usar campos ocultos sincronizados en lugar de leer directamente del DOM
+                config.horario_ida_tren = document.getElementById('horarioIdaTren')?.value || '';
+                config.horario_retorno_tren = document.getElementById('horarioRetornoTren')?.value || '';
+                
+                // ✅ CORRECCIÓN v4.12: Usar campos ocultos sincronizados
+                config.personas_tren = document.getElementById('personas_tren_hidden')?.value || document.getElementById('personasTren')?.value || '';
+                config.precio_por_persona_tren = document.getElementById('precio_por_persona_tren_hidden')?.value || document.getElementById('precioPorPersonaTren')?.value || '';
+                config.precio_total_tren = parseFloat(document.getElementById('precio_total_tren_hidden')?.value) || 0;
+                
+                console.log('🚂 Cálculo del tren turístico (SINCRONIZADO):');
+                console.log(`   - personas_tren (campo oculto): ${config.personas_tren}`);
+                console.log(`   - precio_por_persona_tren (campo oculto): ${config.precio_por_persona_tren}`);
+                console.log(`   - precio_total_tren (campo oculto): ${config.precio_total_tren}`);
+                
+                // Verificar si los campos ocultos están actualizados
+                if (config.personas_tren === '' || config.precio_por_persona_tren === '') {
+                    console.log('⚠️  Campos ocultos vacíos, calculando desde valores directos...');
+                    // Fallback: calcular desde valores directos del DOM
+                    const precioDirecto = parseFloat(document.getElementById('precioPorPersonaTren')?.value) || 0;
+                    const personasDirecto = document.getElementById('personasTren')?.value || '';
+                    const numeroPersonas = extraerNumeroPersonas(personasDirecto);
+                    const totalDirecto = precioDirecto * numeroPersonas;
+                    
+                    config.personas_tren = personasDirecto;
+                    config.precio_por_persona_tren = precioDirecto.toString();
+                    config.precio_total_tren = totalDirecto;
+                    
+                    console.log(`   - FALLBACK - Precio directo: USD ${precioDirecto}`);
+                    console.log(`   - FALLBACK - Personas directo: "${personasDirecto}"`);
+                    console.log(`   - FALLBACK - Total directo: USD ${totalDirecto}`);
+                }
+            }
+
+            // ✅ NUEVA FUNCIONALIDAD: Actualizar información visual del tren
+            // Extraer número de personas para la función visual
+            const numeroPersonas = extraerNumeroPersonas(config.personas_tren) || 2;
+            const precioPorPersona = parseFloat(config.precio_por_persona_tren) || 0;
+            const total = config.precio_total_tren || 0;
+            
+            // Llamar a la función de actualización visual
+            actualizarInformacionVisualTren(
+                config.tipo_tren, 
+                numeroPersonas, 
+                precioPorPersona, 
+                total, 
+                config.horario_ida_tren, 
+                config.horario_retorno_tren
+            );
+
+            // Agregar tipo_tren_normalizado para el PDF
+            config.tipo_tren_normalizado = tipoTren === 'tren local' ? 'tren local' : 'turístico';
             
             return config;
         }
@@ -2039,13 +2439,18 @@
                 
                 // Datos del tren
                 tipo_tren: tipoTransporteSeleccionado === 'local' ? 'Expedition (Local)' : 'Vistadome (Turístico)',
-                tren_horario: document.getElementById('horaTren') ? document.getElementById('horaTren').value || 'N/A' : 'N/A',
+                horario_ida_tren: document.getElementById('horarioIdaTren') ? document.getElementById('horarioIdaTren').value || 'N/A' : 'N/A',
+                horario_retorno_tren: document.getElementById('horarioRetornoTren') ? document.getElementById('horarioRetornoTren').value || 'N/A' : 'N/A',
                 personas_tren: document.getElementById('personasTren') ? document.getElementById('personasTren').value || 'N/A' : 'N/A',
                 
                 // Otros datos
                 observaciones: document.getElementById('observaciones') ? document.getElementById('observaciones').value || 'Ninguna' : 'Ninguna',
                 adelanto_pagado: document.getElementById('adelantoPagado') ? document.getElementById('adelantoPagado').value || '0' : '0',
-                
+
+                // Datos del Asesor
+                nombre_asesor: document.getElementById('nombreAsesor') ? document.getElementById('nombreAsesor').value || 'N/A' : 'N/A',
+                email_asesor: document.getElementById('emailAsesor') ? document.getElementById('emailAsesor').value || 'N/A' : 'N/A',
+
                 // Datos del PDF
                 pdf: resultado.pdf
             };
@@ -2273,8 +2678,11 @@
             if (datosResumen.tipo_tren !== 'N/A') {
                 mensaje += `🚂 *Tren:*\n`;
                 mensaje += `- Servicio: ${datosResumen.tipo_tren}\n`;
-                if (datosResumen.tren_horario !== 'N/A') {
-                    mensaje += `- Horario: ${datosResumen.tren_horario}\n`;
+                if (datosResumen.horario_ida_tren !== 'N/A') {
+                    mensaje += `- Ida: ${datosResumen.horario_ida_tren}\n`;
+                }
+                if (datosResumen.horario_retorno_tren !== 'N/A') {
+                    mensaje += `- Retorno: ${datosResumen.horario_retorno_tren}\n`;
                 }
                 if (datosResumen.personas_tren !== 'N/A') {
                     mensaje += `- ${datosResumen.personas_tren}\n`;
@@ -2361,6 +2769,44 @@
         }
         
         // ==========================================
+        // CONFIGURACIÓN DE GOOGLE SHEETS
+        // ==========================================
+        
+        // ⚠️ CONFIGURACIÓN REQUERIDA: Actualiza esta URL con tu Google Apps Script
+        const GOOGLE_SHEETS_CONFIG = {
+            url: 'https://script.google.com/macros/s/AKfycbxyMwt1ywrb74yLEAfF2QNVf6wDGStAV6Qiu1nA5cgkJhEvFq8szcubM_RfpaFeZumbvQ/exec', // Misma URL que programas fijos
+            enabled: true, // Cambia a false para deshabilitar
+            debug: true // Muestra logs adicionales en consola
+        };
+        
+        // Función para obtener la URL de Google Sheets con validación
+        function getGoogleSheetsURL() {
+            if (!GOOGLE_SHEETS_CONFIG.url || 
+                GOOGLE_SHEETS_CONFIG.url === 'URL_DEL_GOOGLE_APPS_SCRIPT' ||
+                GOOGLE_SHEETS_CONFIG.url.trim() === '') {
+                if (GOOGLE_SHEETS_CONFIG.debug) {
+                    console.warn('⚠️ Google Sheets: URL no configurada');
+                }
+                return null;
+            }
+            return GOOGLE_SHEETS_CONFIG.url;
+        }
+        
+        // Función para diagnosticar la configuración de Google Sheets
+        function diagnosticarGoogleSheets() {
+            if (!GOOGLE_SHEETS_CONFIG.debug) return;
+            
+            console.log('🔍 DIAGNÓSTICO GOOGLE SHEETS:');
+            console.log(`   - URL configurada: ${GOOGLE_SHEETS_CONFIG.url ? 'SÍ' : 'NO'}`);
+            console.log(`   - Habilitado: ${GOOGLE_SHEETS_CONFIG.enabled ? 'SÍ' : 'NO'}`);
+            console.log(`   - Debug: ${GOOGLE_SHEETS_CONFIG.debug ? 'SÍ' : 'NO'}`);
+            
+            if (GOOGLE_SHEETS_CONFIG.url === 'URL_DEL_GOOGLE_APPS_SCRIPT') {
+                console.warn('   - ⚠️ IMPORTANTE: Debes configurar tu URL de Google Apps Script');
+            }
+        }
+        
+        // ==========================================
         // FUNCIONES DE SINCRONIZACIÓN GOOGLE SHEETS
         // ==========================================
         
@@ -2371,26 +2817,69 @@
          */
         async function enviarAGoogleSheets(cotizacion) {
             try {
-                console.log('📤 Enviando cotización a Google Sheets...');
+                // Verificar si la función está habilitada
+                if (!GOOGLE_SHEETS_CONFIG.enabled) {
+                    if (GOOGLE_SHEETS_CONFIG.debug) {
+                        console.log('ℹ️ Google Sheets: Sincronización deshabilitada');
+                    }
+                    return null;
+                }
                 
-                // Preparar datos para Google Sheets
+                // Verificar URL configurada
+                const sheetsUrl = getGoogleSheetsURL();
+                if (!sheetsUrl) {
+                    if (GOOGLE_SHEETS_CONFIG.debug) {
+                        console.warn('⚠️ Google Sheets: URL no configurada, omitiendo sincronización');
+                    }
+                    return null;
+                }
+                
+                // Verificar que cotizacion sea un objeto válido
+                if (!cotizacion || typeof cotizacion !== 'object') {
+                    if (GOOGLE_SHEETS_CONFIG.debug) {
+                        console.warn('⚠️ Google Sheets: Datos de cotización inválidos, omitiendo sincronización');
+                    }
+                    return null;
+                }
+                
+                if (GOOGLE_SHEETS_CONFIG.debug) {
+                    console.log('📤 Enviando cotización a Google Sheets...');
+                }
+                
+                // Preparar datos para Google Sheets (estructura compatible con programas fijos)
                 const datosParaSheets = {
-                    id: cotizacion.id,
-                    fecha_creacion: cotizacion.timestamp,
-                    nombre_cliente: cotizacion.nombre_cliente,
-                    telefono: cotizacion.telefono,
-                    programa: cotizacion.programa,
-                    fecha_tour: cotizacion.fecha_tour,
-                    numero_personas: cotizacion.numero_personas,
-                    precio_total: cotizacion.precio_total || '',
-                    adelanto_pagado: cotizacion.adelanto_pagado || '',
-                    pdf_url: cotizacion.pdf_url || '',
-                    tipo_cotizacion: cotizacion.tipo_cotizacion,
-                    observaciones: cotizacion.observaciones || '',
-                    estado: cotizacion.estado
+                    // Campos básicos con valores por defecto seguros
+                    id: cotizacion?.id || `COT_${Date.now()}`,
+                    fecha_creacion: cotizacion?.timestamp || new Date().toISOString(),
+                    nombre_cliente: cotizacion?.nombre_cliente || cotizacion?.cliente || '',
+                    email: cotizacion?.email || '',
+                    telefono: cotizacion?.telefono || '',
+                    programa: cotizacion?.programa || 'TOUR PERSONALIZADO',
+                    fecha_tour: cotizacion?.fecha_tour || cotizacion?.fecha || '',
+                    num_adultos: cotizacion?.numero_personas || '',
+                    num_ninos: '',
+                    hotel: cotizacion?.hotel || '',
+                    tren: cotizacion?.tipo_tren || '',
+                    precio_tren: '',
+                    total: cotizacion?.precio_total || '',
+                    pdf_url: cotizacion?.pdf_url || '',
+                    tipo_cotizacion: cotizacion?.tipo_cotizacion || 'PERSONALIZADO',
+                    personas: cotizacion?.numero_personas || '',
+                    
+                    // Campos adicionales específicos del tour personalizado
+                    actividades: (cotizacion?.actividades_seleccionadas && Array.isArray(cotizacion.actividades_seleccionadas)) ? 
+                        cotizacion.actividades_seleccionadas.join(', ') : '',
+                    modalidad: cotizacion?.modalidad_precios || 'PAQUETE_PRIVADO',
+                    adelanto: cotizacion?.adelanto || '',
+                    observaciones: cotizacion?.observaciones || '',
+                    fecha_actualizacion: new Date().toISOString()
                 };
                 
-                const response = await fetch(GOOGLE_SHEETS_URL, {
+                if (GOOGLE_SHEETS_CONFIG.debug) {
+                    console.log('📊 Datos preparados para Sheets:', datosParaSheets);
+                }
+                
+                const response = await fetch(sheetsUrl, {
                     method: 'POST',
                     mode: 'no-cors', // Importante para Google Apps Script
                     headers: {
@@ -2399,15 +2888,81 @@
                     body: JSON.stringify(datosParaSheets)
                 });
                 
-                // Con no-cors, no podemos leer la respuesta, pero asumimos éxito
-                console.log('✅ Datos enviados a Google Sheets');
+                if (GOOGLE_SHEETS_CONFIG.debug) {
+                    console.log('✅ Datos enviados a Google Sheets exitosamente');
+                }
                 return true;
                 
             } catch (error) {
-                console.error('❌ Error al enviar a Google Sheets:', error);
-                throw error;
+                if (GOOGLE_SHEETS_CONFIG.debug) {
+                    console.error('❌ Error al enviar a Google Sheets:', error);
+                }
+                // Silenciar el error para no interrumpir el flujo principal
+                // El formulario debe continuar funcionando aunque Google Sheets falle
+                return false;
             }
         }
+        
+        // Función para probar la conectividad con Google Sheets
+        async function probarConectividadGoogleSheets() {
+            if (!GOOGLE_SHEETS_CONFIG.enabled || !GOOGLE_SHEETS_CONFIG.debug) {
+                return { status: 'skip', message: 'Diagnóstico deshabilitado' };
+            }
+            
+            const sheetsUrl = getGoogleSheetsURL();
+            if (!sheetsUrl) {
+                return { status: 'error', message: 'URL no configurada' };
+            }
+            
+            try {
+                // Hacer una petición de prueba simple
+                const response = await fetch(sheetsUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        test: true,
+                        timestamp: new Date().toISOString(),
+                        message: 'Prueba de conectividad desde formulario'
+                    })
+                });
+                
+                return { status: 'success', message: 'Conectividad exitosa' };
+            } catch (error) {
+                return { status: 'error', message: `Error de conectividad: ${error.message}` };
+            }
+        }
+        
+        // INICIALIZACIÓN AL CARGAR LA PÁGINA (DESHABILITADA TEMPORALMENTE)
+        // ==========================================
+        
+        // Ejecutar diagnóstico al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Formulario Tour Personalizado v4.13 - Cargando...');
+            
+            // Conectar el evento submit del formulario
+            const form = document.getElementById('tourPersonalizadoForm');
+            if (form) {
+                form.addEventListener('submit', enviarCotizacion);
+                console.log('✅ Event listener de formulario conectado');
+            } else {
+                console.error('❌ No se encontró el formulario tourPersonalizadoForm');
+            }
+            
+            // DIAGNÓSTICO HABILITADO TEMPORALMENTE
+            // Diagnosticar configuración de Google Sheets
+            diagnosticarGoogleSheets();
+            
+            // Probar conectividad (solo en modo debug) - HABILITADO TEMPORALMENTE
+            setTimeout(async () => {
+                const resultado = await probarConectividadGoogleSheets();
+                if (GOOGLE_SHEETS_CONFIG.debug) {
+                    console.log('🧪 Test de conectividad Google Sheets:', resultado);
+                }
+            }, 2000);
+        });
     </script>
 </body>
 </html>
